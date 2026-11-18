@@ -29,7 +29,7 @@ Leak Radar (pipeline risk).
 |---|---|
 | MDH-001 Scope and governance | Documents in this repo |
 | MDH-002 Data standards and quality rules v1 | Rules file and documents in this repo; customer tier added in rules v1.1 |
-| MDH-003 Data foundation (PostgreSQL) | Next |
+| MDH-003 Data foundation (PostgreSQL) | 25 tables, 20 integrity rules, 13 test files |
 | MDH-004 to MDH-010 | Backlog |
 
 ## Documentation
@@ -41,12 +41,31 @@ Leak Radar (pipeline risk).
 | [docs/data_standards.md](docs/data_standards.md) | Record structure, field standards, mandatory fields by stage |
 | [docs/quality_rules.md](docs/quality_rules.md) | 29 quality rules, matching rules, survivorship |
 | [docs/kpi_definitions.md](docs/kpi_definitions.md) | Every KPI with numerator and denominator |
+| [docs/database_design.md](docs/database_design.md) | Tables, relationships, history, integrity and access rules |
+| [docs/data_dictionary.md](docs/data_dictionary.md) | Every table and column |
 | [docs/work_instructions/](docs/work_instructions/README.md) | One page per request type (steps completed in MDH-007) |
 | [rules/MDH-RULES-v1.1.json](rules/MDH-RULES-v1.1.json) | The versioned rules the engine reads (current). [v1.0](rules/MDH-RULES-v1.0.json) is kept for history |
 
-## Planned stack
+## Setup
 
-Python (standard library + psycopg 3), PostgreSQL, dbt, Power BI, pytest, the same as LeadFlow EU.
+Requires PostgreSQL 16 or later (developed on 18), with the `btree_gist` extension available
+(it ships with PostgreSQL). Connection settings come from the usual PostgreSQL environment
+(`PGUSER`, `PGHOST`, `~/.pgpass`).
+
+Create the database, apply the schema and run all constraint tests in one step:
+
+```
+SQL/tests/run_all_tests.sh --rebuild
+```
+
+The runner recreates `mop_mdh`, applies `SQL/001_create_schema.sql` and later migrations in
+order, runs every test file in `SQL/tests/` and writes a log to `docs/evidence/`. A
+`mop_mdh_test` database is used by the Python tests from MDH-005 on.
+
+## Stack
+
+PostgreSQL now; Python (standard library + psycopg 3), dbt, Power BI and pytest in later cards,
+the same as LeadFlow EU.
 
 ## Licence
 
