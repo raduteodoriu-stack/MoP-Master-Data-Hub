@@ -1,0 +1,1079 @@
+{
+  "rules_version": "MDH-RULES-v1.0",
+  "description": "MoP Master Data Hub: business partner standards, quality rules, matching, survivorship, requests and KPIs (MDH-002). Synthetic data only.",
+  "calendar": {
+    "time_zone": "Europe/Madrid",
+    "working_days": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri"
+    ],
+    "working_hours": {
+      "start": "09:00",
+      "end": "18:00"
+    },
+    "public_holidays": "not counted (same as LeadFlow MVP)"
+  },
+  "identifiers": {
+    "business_partner_id": {
+      "format": "BP-NNNNNN",
+      "regex": "^BP-[0-9]{6}$",
+      "reused": false,
+      "changes_after_merge": false
+    }
+  },
+  "storage": {
+    "keep_value_as_received": true,
+    "keep_standardised_value": true,
+    "matching_uses": "standardised"
+  },
+  "severities": {
+    "error": "Record not fit for use; a request cannot be approved while it fails",
+    "warning": "Reported and queued for the steward; does not block"
+  },
+  "markets": [
+    "ES",
+    "PT",
+    "FR"
+  ],
+  "countries": {
+    "ES": {
+      "tax_id": {
+        "name": "NIF (company)",
+        "regex": "^[ABCDEFGHJNPQRSUVW][0-9]{7}[0-9A-J]$",
+        "check": "es_nif_company_control_character"
+      },
+      "vat": {
+        "prefix": "ES",
+        "build": "ES + tax_id"
+      },
+      "postal_code_regex": "^(0[1-9]|[1-4][0-9]|5[0-2])[0-9]{3}$",
+      "iban_length": 24,
+      "legal_forms": {
+        "S.L.": "Sociedad Limitada",
+        "S.L.U.": "Sociedad Limitada Unipersonal",
+        "S.A.": "Sociedad Anónima",
+        "S.A.U.": "Sociedad Anónima Unipersonal",
+        "S.Coop.": "Sociedad Cooperativa"
+      }
+    },
+    "PT": {
+      "tax_id": {
+        "name": "NIPC",
+        "regex": "^[5-9][0-9]{8}$",
+        "check": "pt_nipc_mod11"
+      },
+      "vat": {
+        "prefix": "PT",
+        "build": "PT + tax_id"
+      },
+      "postal_code_regex": "^[0-9]{4}-[0-9]{3}$",
+      "iban_length": 25,
+      "legal_forms": {
+        "Lda.": "Sociedade por Quotas",
+        "Unipessoal Lda.": "Sociedade Unipessoal por Quotas",
+        "S.A.": "Sociedade Anónima"
+      }
+    },
+    "FR": {
+      "tax_id": {
+        "name": "SIREN",
+        "regex": "^[0-9]{9}$",
+        "check": "fr_siren_luhn"
+      },
+      "vat": {
+        "prefix": "FR",
+        "build": "FR + key + tax_id",
+        "key": "(12 + 3 * (SIREN mod 97)) mod 97, two digits"
+      },
+      "postal_code_regex": "^[0-9]{5}$",
+      "iban_length": 27,
+      "legal_forms": {
+        "SAS": "Société par actions simplifiée",
+        "SASU": "Société par actions simplifiée unipersonnelle",
+        "SARL": "Société à responsabilité limitée",
+        "EURL": "Entreprise unipersonnelle à responsabilité limitée",
+        "SA": "Société anonyme"
+      }
+    }
+  },
+  "other_countries": "Held with minimal data as a parent company only; not checked against country formats",
+  "controlled_values": {
+    "payment_terms": [
+      "NET15",
+      "NET30",
+      "NET45",
+      "NET60"
+    ],
+    "supplier_category": [
+      "panel_sample_provider",
+      "software",
+      "professional_services",
+      "facilities",
+      "other"
+    ],
+    "industry_code": [
+      "market_research",
+      "polling",
+      "research_consultancy",
+      "panel_sample_provider",
+      "research_technology",
+      "advertising_media_pr_agency",
+      "ux_research_agency",
+      "management_consultancy",
+      "consumer_goods",
+      "retail_ecommerce",
+      "technology_telecoms",
+      "financial_services",
+      "automotive_mobility",
+      "healthcare_pharma",
+      "travel_hospitality",
+      "media_entertainment_gaming",
+      "energy_utilities",
+      "public_academic_nonprofit",
+      "other",
+      "unknown"
+    ],
+    "employee_band": [
+      "1-10",
+      "11-49",
+      "50-249",
+      "250-999",
+      "1000_plus",
+      "unknown"
+    ],
+    "contact_legal_basis": [
+      "contract",
+      "legitimate_interest",
+      "consent"
+    ],
+    "block_reason": [
+      "duplicate",
+      "credit",
+      "payment",
+      "compliance"
+    ],
+    "relationship_type": [
+      "subsidiary_of"
+    ],
+    "free_email_domains": [
+      "gmail.com",
+      "googlemail.com",
+      "hotmail.com",
+      "hotmail.es",
+      "hotmail.fr",
+      "outlook.com",
+      "outlook.es",
+      "live.com",
+      "yahoo.com",
+      "yahoo.es",
+      "yahoo.fr",
+      "icloud.com",
+      "proton.me",
+      "protonmail.com",
+      "sapo.pt",
+      "orange.fr",
+      "free.fr",
+      "laposte.net",
+      "gmx.com"
+    ],
+    "name_placeholders": [
+      "test",
+      "n/a",
+      "na",
+      "tbc",
+      "tbd",
+      "unknown",
+      "xxx",
+      "-",
+      "none",
+      "dummy"
+    ]
+  },
+  "sources": {
+    "crm": "HubSpot CRM (LeadFlow companies)",
+    "erp": "Finance/ERP: customer and supplier accounts",
+    "support": "Support desk",
+    "procurement_sheet": "Procurement spreadsheet of suppliers"
+  },
+  "field_groups": {
+    "legal_identity": {
+      "fields": [
+        "legal_name",
+        "legal_form",
+        "country",
+        "tax_id",
+        "vat_number"
+      ],
+      "owner": "finance_controller",
+      "winning_source": "erp"
+    },
+    "addresses": {
+      "fields": [
+        "registered_address",
+        "billing_address"
+      ],
+      "owner": "finance_controller",
+      "winning_source": "erp"
+    },
+    "customer_payment": {
+      "fields": [
+        "payment_terms_customer",
+        "bill_to_partner",
+        "invoice_email",
+        "billing_block"
+      ],
+      "owner": "finance_controller",
+      "winning_source": "erp"
+    },
+    "customer_commercial": {
+      "fields": [
+        "trading_name",
+        "web_domain",
+        "industry_code",
+        "employee_band",
+        "segment",
+        "account_owner"
+      ],
+      "owner": "sales_director",
+      "winning_source": "crm"
+    },
+    "supplier_payment": {
+      "fields": [
+        "bank_details",
+        "payment_terms_supplier",
+        "remittance_email",
+        "payment_block"
+      ],
+      "owner": "finance_controller",
+      "winning_source": "erp"
+    },
+    "supplier_commercial": {
+      "fields": [
+        "supplier_category",
+        "internal_contact"
+      ],
+      "owner": "head_of_operations",
+      "winning_source": "procurement_sheet",
+      "winning_source_after_migration": "hub"
+    },
+    "relationships": {
+      "fields": [
+        "parent_partner"
+      ],
+      "owner": "sales_director",
+      "winning_source": "hub"
+    },
+    "lifecycle": {
+      "fields": [
+        "customer_stage",
+        "supplier_stage",
+        "block"
+      ],
+      "owner": {
+        "customer": "sales_director",
+        "supplier": "head_of_operations",
+        "block": "finance_controller"
+      },
+      "winning_source": "hub"
+    },
+    "contact_persons": {
+      "fields": [
+        "first_name",
+        "last_name",
+        "work_email",
+        "role",
+        "legal_basis"
+      ],
+      "owner": {
+        "customer": "sales_director",
+        "supplier": "head_of_operations"
+      },
+      "consulted": "dpo",
+      "winning_source": "crm"
+    }
+  },
+  "fields": {
+    "legal_name": {
+      "part": "general",
+      "risk": "high",
+      "standard": "As on the tax registration, legal form in the country's standard spelling; no placeholders"
+    },
+    "trading_name": {
+      "part": "general",
+      "risk": "low",
+      "standard": "Name the company is known by; used for prospects before the legal name is known"
+    },
+    "legal_form": {
+      "part": "general",
+      "risk": "high",
+      "standard": "From countries.<cc>.legal_forms"
+    },
+    "country": {
+      "part": "general",
+      "risk": "high",
+      "standard": "ISO 3166-1 alpha-2"
+    },
+    "tax_id": {
+      "part": "general",
+      "risk": "high",
+      "standard": "Country format and check digit; stored without spaces, dots or dashes"
+    },
+    "vat_number": {
+      "part": "general",
+      "risk": "high",
+      "standard": "Derived from tax_id and country; never typed by hand"
+    },
+    "web_domain": {
+      "part": "general",
+      "risk": "low",
+      "standard": "Lower case, registrable domain only (no www, scheme or path); not a free email domain"
+    },
+    "registered_address": {
+      "part": "general",
+      "risk": "high",
+      "standard": "Street, postal code, city, region, country as separate fields"
+    },
+    "phone": {
+      "part": "general",
+      "risk": "low",
+      "standard": "International format: + and digits only"
+    },
+    "segment": {
+      "part": "customer",
+      "risk": "low",
+      "standard": "Commercial segment"
+    },
+    "account_owner": {
+      "part": "customer",
+      "risk": "low",
+      "standard": "An existing, active LeadFlow owner ID"
+    },
+    "industry_code": {
+      "part": "customer",
+      "risk": "low",
+      "standard": "controlled_values.industry_code"
+    },
+    "employee_band": {
+      "part": "customer",
+      "risk": "low",
+      "standard": "controlled_values.employee_band"
+    },
+    "billing_address": {
+      "part": "customer",
+      "risk": "high",
+      "standard": "Same structure as registered_address"
+    },
+    "bill_to_partner": {
+      "part": "customer",
+      "risk": "high",
+      "standard": "An existing, active, unblocked partner"
+    },
+    "payment_terms_customer": {
+      "part": "customer",
+      "risk": "high",
+      "standard": "controlled_values.payment_terms; anything else needs the Finance Controller"
+    },
+    "invoice_email": {
+      "part": "customer",
+      "risk": "high",
+      "standard": "Valid format; shared mailbox preferred"
+    },
+    "billing_block": {
+      "part": "customer",
+      "risk": "high",
+      "standard": "Reason and approver when set"
+    },
+    "supplier_category": {
+      "part": "supplier",
+      "risk": "low",
+      "standard": "controlled_values.supplier_category"
+    },
+    "internal_contact": {
+      "part": "supplier",
+      "risk": "low",
+      "standard": "MoP Cloud employee responsible for the supplier"
+    },
+    "payment_terms_supplier": {
+      "part": "supplier",
+      "risk": "high",
+      "standard": "controlled_values.payment_terms"
+    },
+    "remittance_email": {
+      "part": "supplier",
+      "risk": "high",
+      "standard": "Valid format; shared mailbox preferred"
+    },
+    "bank_details": {
+      "part": "supplier",
+      "risk": "high",
+      "standard": "IBAN with valid length and check digits, account holder name, last verification date, method and verifier"
+    },
+    "payment_block": {
+      "part": "supplier",
+      "risk": "high",
+      "standard": "Reason and approver when set"
+    },
+    "contact_person": {
+      "part": "contact",
+      "risk": "personal_data",
+      "standard": "First name, last name, work email, role, legal basis; no private email, no other personal data"
+    },
+    "parent_partner": {
+      "part": "relationship",
+      "risk": "high",
+      "standard": "Existing, unblocked partner; no loops; at most five levels"
+    }
+  },
+  "lifecycle": {
+    "customer": [
+      "prospect",
+      "customer",
+      "inactive",
+      "blocked"
+    ],
+    "supplier": [
+      "requested",
+      "approved",
+      "inactive",
+      "blocked"
+    ]
+  },
+  "mandatory_by_stage": {
+    "legend": {
+      "M": "mandatory",
+      "O": "optional",
+      "-": "not applicable"
+    },
+    "stages": [
+      "customer.prospect",
+      "customer.customer",
+      "supplier.requested",
+      "supplier.approved"
+    ],
+    "fields": {
+      "trading_or_legal_name": {
+        "customer.prospect": "M",
+        "customer.customer": "M",
+        "supplier.requested": "M",
+        "supplier.approved": "M"
+      },
+      "country": {
+        "customer.prospect": "M",
+        "customer.customer": "M",
+        "supplier.requested": "M",
+        "supplier.approved": "M"
+      },
+      "web_domain": {
+        "customer.prospect": "M",
+        "customer.customer": "M",
+        "supplier.requested": "O",
+        "supplier.approved": "O"
+      },
+      "legal_name": {
+        "customer.prospect": "O",
+        "customer.customer": "M",
+        "supplier.requested": "O",
+        "supplier.approved": "M"
+      },
+      "legal_form": {
+        "customer.prospect": "O",
+        "customer.customer": "M",
+        "supplier.requested": "O",
+        "supplier.approved": "M"
+      },
+      "tax_id": {
+        "customer.prospect": "O",
+        "customer.customer": "M",
+        "supplier.requested": "O",
+        "supplier.approved": "M"
+      },
+      "registered_address": {
+        "customer.prospect": "O",
+        "customer.customer": "M",
+        "supplier.requested": "O",
+        "supplier.approved": "M"
+      },
+      "account_owner": {
+        "customer.prospect": "M",
+        "customer.customer": "M",
+        "supplier.requested": "-",
+        "supplier.approved": "-"
+      },
+      "industry_code": {
+        "customer.prospect": "O",
+        "customer.customer": "M",
+        "supplier.requested": "-",
+        "supplier.approved": "-"
+      },
+      "employee_band": {
+        "customer.prospect": "O",
+        "customer.customer": "M",
+        "supplier.requested": "-",
+        "supplier.approved": "-"
+      },
+      "billing_address": {
+        "customer.prospect": "-",
+        "customer.customer": "M",
+        "supplier.requested": "-",
+        "supplier.approved": "-"
+      },
+      "bill_to_partner": {
+        "customer.prospect": "-",
+        "customer.customer": "M",
+        "supplier.requested": "-",
+        "supplier.approved": "-"
+      },
+      "invoice_email": {
+        "customer.prospect": "-",
+        "customer.customer": "M",
+        "supplier.requested": "-",
+        "supplier.approved": "-"
+      },
+      "payment_terms": {
+        "customer.prospect": "-",
+        "customer.customer": "M",
+        "supplier.requested": "O",
+        "supplier.approved": "M"
+      },
+      "supplier_category": {
+        "customer.prospect": "-",
+        "customer.customer": "-",
+        "supplier.requested": "M",
+        "supplier.approved": "M"
+      },
+      "internal_contact": {
+        "customer.prospect": "-",
+        "customer.customer": "-",
+        "supplier.requested": "M",
+        "supplier.approved": "M"
+      },
+      "bank_details": {
+        "customer.prospect": "-",
+        "customer.customer": "-",
+        "supplier.requested": "O",
+        "supplier.approved": "M"
+      },
+      "remittance_email": {
+        "customer.prospect": "-",
+        "customer.customer": "-",
+        "supplier.requested": "O",
+        "supplier.approved": "M"
+      },
+      "contact_person_min_1": {
+        "customer.prospect": "O",
+        "customer.customer": "M",
+        "supplier.requested": "O",
+        "supplier.approved": "M"
+      }
+    }
+  },
+  "quality_rules": [
+    {
+      "id": "C01",
+      "dimension": "completeness",
+      "severity": "error",
+      "rule": "Every field mandatory for the record's stage is filled"
+    },
+    {
+      "id": "C02",
+      "dimension": "completeness",
+      "severity": "warning",
+      "rule": "A customer's industry and employee band are not 'unknown'"
+    },
+    {
+      "id": "C03",
+      "dimension": "completeness",
+      "severity": "warning",
+      "rule": "A customer or approved supplier has at least one contact person with a role"
+    },
+    {
+      "id": "V01",
+      "dimension": "validity",
+      "severity": "error",
+      "rule": "Tax ID has the right format and check digit for its country"
+    },
+    {
+      "id": "V02",
+      "dimension": "validity",
+      "severity": "error",
+      "rule": "VAT number agrees with the tax ID and country"
+    },
+    {
+      "id": "V03",
+      "dimension": "validity",
+      "severity": "error",
+      "rule": "Country is a valid ISO code"
+    },
+    {
+      "id": "V04",
+      "dimension": "validity",
+      "severity": "error",
+      "rule": "Postal code fits the country's pattern"
+    },
+    {
+      "id": "V05",
+      "dimension": "validity",
+      "severity": "error",
+      "rule": "Web domain is clean and is not a free email domain"
+    },
+    {
+      "id": "V06",
+      "dimension": "validity",
+      "severity": "error",
+      "rule": "Email addresses have a valid format"
+    },
+    {
+      "id": "V07",
+      "dimension": "validity",
+      "severity": "warning",
+      "rule": "Phone is in international format"
+    },
+    {
+      "id": "V08",
+      "dimension": "validity",
+      "severity": "error",
+      "rule": "Payment terms are in the allowed list"
+    },
+    {
+      "id": "V09",
+      "dimension": "validity",
+      "severity": "error",
+      "rule": "IBAN has the right length and check digits"
+    },
+    {
+      "id": "V10",
+      "dimension": "validity",
+      "severity": "warning",
+      "rule": "Legal form is in the country's list and agrees with the ending of the legal name"
+    },
+    {
+      "id": "V11",
+      "dimension": "validity",
+      "severity": "error",
+      "rule": "Legal name is not a placeholder"
+    },
+    {
+      "id": "U01",
+      "dimension": "uniqueness",
+      "severity": "error",
+      "rule": "A tax ID belongs to only one active partner"
+    },
+    {
+      "id": "U02",
+      "dimension": "uniqueness",
+      "severity": "error",
+      "rule": "Every source record is linked to exactly one partner"
+    },
+    {
+      "id": "U03",
+      "dimension": "uniqueness",
+      "severity": "warning",
+      "rule": "An IBAN belongs to only one supplier, unless the suppliers are in the same group; sent to review"
+    },
+    {
+      "id": "K01",
+      "dimension": "consistency",
+      "severity": "error",
+      "rule": "The tax ID's country is the country of registration"
+    },
+    {
+      "id": "K02",
+      "dimension": "consistency",
+      "severity": "warning",
+      "rule": "The bank account holder's name matches the legal name; sent to review"
+    },
+    {
+      "id": "K03",
+      "dimension": "consistency",
+      "severity": "warning",
+      "rule": "The IBAN's country is the country of registration, or an exception is recorded"
+    },
+    {
+      "id": "K04",
+      "dimension": "consistency",
+      "severity": "error",
+      "rule": "The bill-to party exists, is active and is not blocked"
+    },
+    {
+      "id": "K05",
+      "dimension": "consistency",
+      "severity": "error",
+      "rule": "The parent exists and is not blocked; no loop; at most five levels"
+    },
+    {
+      "id": "K06",
+      "dimension": "consistency",
+      "severity": "warning",
+      "rule": "Each governed field has the same value in every source system as in the golden record"
+    },
+    {
+      "id": "K07",
+      "dimension": "consistency",
+      "severity": "error",
+      "rule": "A blocked partner has a reason and an approver; an unblocked partner has neither"
+    },
+    {
+      "id": "K08",
+      "dimension": "consistency",
+      "severity": "warning",
+      "rule": "A contact person's email domain is the partner's web domain"
+    },
+    {
+      "id": "T01",
+      "dimension": "timeliness",
+      "severity": "warning",
+      "rule": "A customer or approved supplier was reviewed in the last 12 months"
+    },
+    {
+      "id": "T02",
+      "dimension": "timeliness",
+      "severity": "warning",
+      "rule": "Supplier bank details were verified after their last change and within the last 24 months"
+    },
+    {
+      "id": "T03",
+      "dimension": "timeliness",
+      "severity": "warning",
+      "rule": "A change in a source system reaches the hub within one working day"
+    },
+    {
+      "id": "T04",
+      "dimension": "timeliness",
+      "severity": "warning",
+      "rule": "A match suggestion is decided within five working days"
+    }
+  ],
+  "quality_parameters": {
+    "T01_review_months": 12,
+    "T02_bank_verification_months": 24,
+    "T03_max_working_days": 1,
+    "T04_max_working_days": 5,
+    "K05_max_hierarchy_levels": 5
+  },
+  "clean_up_phase": {
+    "auto_correct": false,
+    "auto_delete": false,
+    "failures_become": "steward work items"
+  },
+  "matching": {
+    "name_standardisation": [
+      "upper case",
+      "remove accents",
+      "remove punctuation",
+      "remove legal form",
+      "collapse spaces"
+    ],
+    "similarity": "0 to 1",
+    "order": "first rule that applies decides",
+    "auto_link_rules": [
+      "M1"
+    ],
+    "rules": [
+      {
+        "id": "M1",
+        "evidence": "Same valid tax ID",
+        "outcome": "same_partner",
+        "auto_link": true,
+        "priority": null
+      },
+      {
+        "id": "M2",
+        "evidence": "Different valid tax IDs",
+        "outcome": "never_same_partner",
+        "auto_link": false,
+        "group_suggestion_if": "same web domain or name similarity >= 0.85"
+      },
+      {
+        "id": "M3",
+        "evidence": "At least one side has no tax ID; same web domain; same country; name similarity >= 0.92",
+        "outcome": "suggestion",
+        "strength": "strong",
+        "auto_link": false,
+        "min_name_similarity": 0.92
+      },
+      {
+        "id": "M4",
+        "evidence": "Name similarity >= 0.85 and same postal code or phone",
+        "outcome": "suggestion",
+        "strength": "normal",
+        "auto_link": false,
+        "min_name_similarity": 0.85
+      },
+      {
+        "id": "M5",
+        "evidence": "Name similarity 0.75 to 0.85 and same city",
+        "outcome": "suggestion",
+        "strength": "weak",
+        "auto_link": false,
+        "min_name_similarity": 0.75,
+        "max_name_similarity": 0.85
+      },
+      {
+        "id": "M6",
+        "evidence": "Same IBAN on two different partners",
+        "outcome": "bank_risk_review",
+        "priority": "high",
+        "auto_link": false
+      }
+    ],
+    "supporting_only": [
+      "shared contact email"
+    ],
+    "suggestion_outcomes": [
+      "confirmed",
+      "rejected",
+      "group"
+    ],
+    "rejected_pair_resuggested_only_if_record_changes": true,
+    "stored_with_each_suggestion": [
+      "rule_id",
+      "score",
+      "compared_values",
+      "rules_version"
+    ],
+    "test_metrics": [
+      "precision",
+      "recall"
+    ]
+  },
+  "survivorship": [
+    "A value set through an approved request wins until a later approved request changes it",
+    "Otherwise the value from the winning source for the field group",
+    "If that source has no value, the most recently changed valid value from another source",
+    "An empty value never replaces a filled one; an invalid value never replaces a valid one"
+  ],
+  "survivorship_lineage": [
+    "source_record_id",
+    "survivorship_step"
+  ],
+  "request_types": [
+    {
+      "id": "create_customer",
+      "name": "Create customer (promote a prospect)",
+      "evidence": [
+        "signed_contract_reference",
+        "tax_registration"
+      ],
+      "target_working_hours": 16,
+      "approver": "finance_controller"
+    },
+    {
+      "id": "create_supplier",
+      "name": "Create supplier (request)",
+      "evidence": [
+        "business_reason",
+        "internal_contact"
+      ],
+      "target_working_hours": 8,
+      "approver": "head_of_operations"
+    },
+    {
+      "id": "approve_supplier",
+      "name": "Approve supplier for payment",
+      "evidence": [
+        "tax_registration",
+        "bank_certificate",
+        "verification_record"
+      ],
+      "target_working_hours": 16,
+      "approver": "finance_controller"
+    },
+    {
+      "id": "change_low_risk",
+      "name": "Change low-risk field",
+      "evidence": [],
+      "target_working_hours": 8,
+      "approver": "steward"
+    },
+    {
+      "id": "change_high_risk",
+      "name": "Change high-risk field",
+      "evidence": [
+        "supporting_document"
+      ],
+      "target_working_hours": 16,
+      "approver": "finance_controller"
+    },
+    {
+      "id": "change_bank_details",
+      "name": "Change supplier bank details",
+      "evidence": [
+        "bank_certificate",
+        "independent_verification_via_contact_on_file"
+      ],
+      "target_working_hours": 16,
+      "approver": "finance_controller"
+    },
+    {
+      "id": "block_unblock",
+      "name": "Block or unblock",
+      "evidence": [
+        "reason"
+      ],
+      "target_working_hours": 4,
+      "approver": "finance_controller (credit, payment, compliance); sales_director or head_of_operations (inactive)"
+    },
+    {
+      "id": "merge_hierarchy",
+      "name": "Merge, undo merge, hierarchy change",
+      "evidence": [
+        "reason",
+        "records_concerned"
+      ],
+      "target_working_hours": 16,
+      "approver": "steward (probable merge); data owner (undo merge, merge changing owner, legal or bank data); sales_director (hierarchy)"
+    },
+    {
+      "id": "mass_upload",
+      "name": "Mass upload",
+      "evidence": [
+        "upload_template_passing_preload_checks"
+      ],
+      "target_working_hours": 24,
+      "approver": "approver of the highest-risk change in the file"
+    },
+    {
+      "id": "erase_contact",
+      "name": "Erase a contact person",
+      "evidence": [
+        "dpo_reference"
+      ],
+      "target_working_hours": 40,
+      "approver": "dpo",
+      "calendar_limit": "one calendar month"
+    }
+  ],
+  "requests": {
+    "statuses": [
+      "draft",
+      "submitted",
+      "in_review",
+      "awaiting_approval",
+      "approved",
+      "applied",
+      "closed",
+      "returned",
+      "rejected",
+      "cancelled"
+    ],
+    "main_path": [
+      "draft",
+      "submitted",
+      "in_review",
+      "awaiting_approval",
+      "approved",
+      "applied",
+      "closed"
+    ],
+    "sla_clock": {
+      "starts": "submitted",
+      "stops": "closed",
+      "paused_in": [
+        "returned"
+      ],
+      "restarts": "resubmitted",
+      "sla_measured_on": "net"
+    },
+    "submission_blocked_if": [
+      "any error-level rule fails",
+      "required evidence missing"
+    ],
+    "approver_cannot_be_requester": true,
+    "audit": [
+      "status",
+      "changed_by",
+      "changed_at"
+    ]
+  },
+  "roles": [
+    "finance_controller",
+    "sales_director",
+    "head_of_operations",
+    "steward",
+    "requester",
+    "system_custodian",
+    "dpo"
+  ],
+  "kpis": [
+    {
+      "id": "KPI01",
+      "name": "Data Quality Score",
+      "numerator": "rule checks passed",
+      "denominator": "rule checks applicable, on active golden records",
+      "split": [
+        "total",
+        "dimension",
+        "error_only"
+      ]
+    },
+    {
+      "id": "KPI02",
+      "name": "Completeness",
+      "numerator": "mandatory fields filled",
+      "denominator": "mandatory fields required for each record's stage"
+    },
+    {
+      "id": "KPI03",
+      "name": "Duplicate Rate",
+      "numerator": "source records sharing a partner with another record from the same system",
+      "denominator": "source records in that system",
+      "split": [
+        "source_system"
+      ]
+    },
+    {
+      "id": "KPI04",
+      "name": "Golden Record Coverage",
+      "numerator": "source records linked to a partner with no open suggestion",
+      "denominator": "all source records"
+    },
+    {
+      "id": "KPI05",
+      "name": "Cross-System Consistency",
+      "numerator": "governed field values in source systems equal to the golden value",
+      "denominator": "governed field values present in source systems"
+    },
+    {
+      "id": "KPI06",
+      "name": "Match Review Backlog",
+      "measure": "open suggestions at as-of",
+      "age": "median working hours open"
+    },
+    {
+      "id": "KPI07",
+      "name": "Request Turnaround Time",
+      "measure": "median working hours from submitted to closed",
+      "split": [
+        "request_type",
+        "net",
+        "gross"
+      ]
+    },
+    {
+      "id": "KPI08",
+      "name": "Request SLA Attainment",
+      "numerator": "requests closed within target (net time)",
+      "denominator": "requests closed + requests still open past their target"
+    },
+    {
+      "id": "KPI09",
+      "name": "First-Time-Right Rate",
+      "numerator": "requests approved without ever being returned",
+      "denominator": "requests approved or rejected"
+    },
+    {
+      "id": "KPI10",
+      "name": "Verified Bank Details Rate",
+      "numerator": "approved suppliers passing T02",
+      "denominator": "approved suppliers"
+    },
+    {
+      "id": "KPI11",
+      "name": "Match precision and recall",
+      "scope": "test data only, against the MDH-004 answer key"
+    }
+  ]
+}
