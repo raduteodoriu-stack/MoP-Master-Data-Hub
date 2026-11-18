@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Secrets: never committed
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+
+# dbt (MDH-009): build output, logs and installed packages
+reporting/target/
+reporting/logs/
+reporting/dbt_packages/
+
+# Local scratch (database dumps, notes): never committed
+.local/
+
+# Power BI project (MDH-009): local settings and the data cache stay on this machine
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
