@@ -28,7 +28,7 @@ Leak Radar (pipeline risk).
 | Card | Status |
 |---|---|
 | MDH-001 Scope and governance | Documents in this repo |
-| MDH-002 Data standards and quality rules v1 | Rules file and documents in this repo |
+| MDH-002 Data standards and quality rules v1 | Rules file and documents in this repo; customer tier added in rules v1.1 |
 | MDH-003 Data foundation (PostgreSQL) | Next |
 | MDH-004 to MDH-010 | Backlog |
 
@@ -42,7 +42,7 @@ Leak Radar (pipeline risk).
 | [docs/quality_rules.md](docs/quality_rules.md) | 29 quality rules, matching rules, survivorship |
 | [docs/kpi_definitions.md](docs/kpi_definitions.md) | Every KPI with numerator and denominator |
 | [docs/work_instructions/](docs/work_instructions/README.md) | One page per request type (steps completed in MDH-007) |
-| [rules/MDH-RULES-v1.0.json](rules/MDH-RULES-v1.0.json) | The versioned rules the engine reads |
+| [rules/MDH-RULES-v1.1.json](rules/MDH-RULES-v1.1.json) | The versioned rules the engine reads (current). [v1.0](rules/MDH-RULES-v1.0.json) is kept for history |
 
 ## Planned stack
 

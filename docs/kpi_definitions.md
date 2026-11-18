@@ -28,4 +28,5 @@ All KPIs are calculated on a stated as-of date. "Active" means not blocked and n
 | KPI08 | Request SLA Attainment | Requests closed within target, measured on net time ÷ (requests closed + requests still open past their target) |
 | KPI09 | First-Time-Right Rate | Requests approved without ever being Returned ÷ requests approved or rejected |
 | KPI10 | Verified Bank Details Rate | Approved suppliers passing T02 ÷ approved suppliers |
+| KPI12 | Tier Override Rate | Customer roles with a current tier override ÷ customer roles with a known calculated tier. Split by effective tier |
 | KPI11 | Match precision and recall | Test data only, against the MDH-004 answer key (see [quality_rules.md](quality_rules.md), matching) |

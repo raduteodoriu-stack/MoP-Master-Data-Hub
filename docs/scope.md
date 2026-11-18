@@ -71,7 +71,7 @@ Field standards and rules are in [data_standards.md](data_standards.md) and
 
 ## Approach
 
-1. **Standards first.** Field definitions, mandatory fields per stage, formats and quality rules are versioned in `MDH-RULES-v1.0.json` (MDH-002), not hidden in code.
+1. **Standards first.** Field definitions, mandatory fields per stage, formats and quality rules are versioned in `rules/` (MDH-002; current version `MDH-RULES-v1.1.json`), not hidden in code.
 2. **Answer keys first.** Hand-written cases with expected outcomes (MDH-004) are reviewed before the engine is built.
 3. **One partner, several roles.** A customer that is also a supplier is one partner with shared legal data and separate role data.
 4. **Never lose a source record.** Every source record is kept as received. The golden record is derived from source records plus the cross-reference, so it can be rebuilt and any merge undone.
