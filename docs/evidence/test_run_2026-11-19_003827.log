@@ -1,0 +1,573 @@
+MoP Master Data Hub - MDH-003 test run
+Started:  2026-11-19 00:38:27 CET
+Git:      feat/mdh-003-data-foundation @ 03a1743 (uncommitted changes present)
+Database: mop_mdh as postgres
+Server:   PostgreSQL 18.1 on x86_64-apple-darwin23.6.0, compiled by Apple clang version 16.0.0 (clang-1600.0.26.6), 64-bit
+
+== Rebuild: dropping and recreating mop_mdh ==
+Guard:    OK (I01: the schema refuses the 'postgres' database)
+NOTICE:  database "mop_mdh" does not exist, skipping
+BEGIN
+DO
+CREATE EXTENSION
+CREATE SCHEMA
+CREATE SCHEMA
+CREATE SCHEMA
+CREATE SCHEMA
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+CREATE DOMAIN
+CREATE DOMAIN
+CREATE DOMAIN
+CREATE DOMAIN
+CREATE DOMAIN
+CREATE TABLE
+CREATE TABLE
+INSERT 0 4
+CREATE TABLE
+CREATE TABLE
+CREATE SEQUENCE
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE FUNCTION
+CREATE TRIGGER
+CREATE SEQUENCE
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE FUNCTION
+CREATE TRIGGER
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE FUNCTION
+CREATE TRIGGER
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE FUNCTION
+CREATE TRIGGER
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE FUNCTION
+CREATE TRIGGER
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE FUNCTION
+CREATE TRIGGER
+CREATE TRIGGER
+CREATE TRIGGER
+CREATE TRIGGER
+CREATE TRIGGER
+CREATE TRIGGER
+CREATE FUNCTION
+CREATE FUNCTION
+DO
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+ALTER TABLE
+CREATE POLICY
+psql:SQL/001_create_schema.sql:1093: NOTICE:  MDH schema OK in mop_mdh: 25 tables.
+DO
+COMMIT
+Schema:   OK (SQL/001_create_schema.sql)
+BEGIN
+DO
+CREATE FUNCTION
+COMMENT
+GRANT
+psql:SQL/002_working_minutes.sql:54: NOTICE:  Migration 002 OK in mop_mdh.
+DO
+COMMIT
+Schema:   OK (SQL/002_working_minutes.sql)
+
+----------------------------------------------------------
+== 001_test_config.sql
+BEGIN
+DO
+CREATE TABLE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+INSERT 0 1
+INSERT 0 6
+ #  |                            description                             | result |                detail                
+----+--------------------------------------------------------------------+--------+--------------------------------------
+  1 | A rules version with a valid checksum is stored                    | PASS   | accepted
+  2 | A checksum that is not 64 hex characters is refused                | PASS   | refused: sha256_hex_format
+  3 | The same rules version cannot be loaded twice                      | PASS   | refused: rule_versions_pkey
+  4 | The four source systems are seeded                                 | PASS   | true
+  5 | An unknown source system is refused                                | PASS   | refused: source_systems_code_valid
+  6 | A synthetic staff member is stored                                 | PASS   | accepted
+  7 | A staff ID in the wrong format is refused                          | PASS   | refused: staff_id_format
+  8 | A staff email outside .example (real data) is refused              | PASS   | refused: staff_email_synthetic
+  9 | A malformed email is refused                                       | PASS   | refused: email_address_format
+ 10 | An unknown department is refused                                   | PASS   | refused: staff_department_valid
+ 11 | A sales owner ID in the wrong format is refused                    | PASS   | refused: staff_sales_owner_id_format
+ 12 | Two people cannot share a sales owner ID                           | PASS   | refused: staff_sales_owner_id_unique
+ 13 | A current role for a person is stored                              | PASS   | accepted
+ 14 | I19: the same role for the same person cannot overlap              | PASS   | refused: staff_roles_no_overlap
+ 15 | A person can hold two different roles at the same time             | PASS   | accepted
+ 16 | The same role can be held again in a later, non-overlapping period | PASS   | accepted
+ 17 | A role period must have a start                                    | PASS   | refused: valid_period_bounded_start
+ 18 | An unknown governance role is refused                              | PASS   | refused: staff_roles_role_valid
+(18 rows)
+
+psql:SQL/tests/_report.sql:23: NOTICE:  All 18 checks passed.
+DO
+ROLLBACK
+PASS  001_test_config.sql                            18 checks
+----------------------------------------------------------
+== 002_test_source.sql
+BEGIN
+DO
+CREATE TABLE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+INSERT 0 1
+INSERT 0 6
+ #  |                                     description                                      | result |                                                 detail                                                 
+----+--------------------------------------------------------------------------------------+--------+--------------------------------------------------------------------------------------------------------
+  1 | A load batch whose counts balance is stored                                          | PASS   | accepted
+  2 | Counts must balance: received = stored + unchanged + rejected                        | PASS   | refused: load_batches_counts_balance
+  3 | I03: the same file cannot be loaded twice from one system                            | PASS   | refused: load_batches_file_once
+  4 | The same checksum from another system is a different load                            | PASS   | accepted
+  5 | A source record is stored as received                                                | PASS   | accepted
+  6 | I03: the same version of a record is stored only once                                | PASS   | refused: source_records_content_once
+  7 | A changed record arrives as a new version                                            | PASS   | accepted
+  8 | The record now has versions 1 and 2                                                  | PASS   | true
+  9 | A record must come from a batch of its own system                                    | PASS   | refused: source_records_batch_same_system
+ 10 | The payload must be a JSON object                                                    | PASS   | refused: source_records_payload_object
+ 11 | A blank source key is refused                                                        | PASS   | refused: source_records_key_not_blank
+ 12 | I02: a source record cannot be updated                                               | PASS   | refused: I02: source records are insert-only (update refused for 333e8efa-6d51-42d1-8c77-516dabc2efa8)
+ 13 | I02: a source record cannot be deleted                                               | PASS   | refused: I02: source records are insert-only (delete refused for 333e8efa-6d51-42d1-8c77-516dabc2efa8)
+ 14 | Redaction time and request are filled together                                       | PASS   | refused: source_records_redaction_pair
+ 15 | A standardised value that is still invalid is accepted (the quality rules report it) | PASS   | accepted
+ 16 | An unknown role hint is refused                                                      | PASS   | refused: standardised_records_role_hint_valid
+(16 rows)
+
+psql:SQL/tests/_report.sql:23: NOTICE:  All 16 checks passed.
+DO
+ROLLBACK
+PASS  002_test_source.sql                            16 checks
+----------------------------------------------------------
+== 003_test_partners.sql
+BEGIN
+DO
+CREATE TABLE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+INSERT 0 1
+INSERT 0 6
+ #  |                              description                               | result |                                                    detail                                                     
+----+------------------------------------------------------------------------+--------+---------------------------------------------------------------------------------------------------------------
+  1 | A Spanish partner with a well-formed NIF is stored                     | PASS   | accepted
+  2 | I08: the Spanish VAT number is derived (ES + NIF)                      | PASS   | true
+  3 | A French partner with a SIREN is stored                                | PASS   | accepted
+  4 | I08: the French VAT number carries the computed key (FR + key + SIREN) | PASS   | true
+  5 | A Portuguese partner with a NIPC is stored                             | PASS   | accepted
+  6 | I08: the Portuguese VAT number is derived (PT + NIPC)                  | PASS   | true
+  7 | I08: a VAT number cannot be typed                                      | PASS   | refused: cannot insert a non-DEFAULT value into column "vat_number"
+  8 | I09: a Spanish tax ID in the wrong format is refused                   | PASS   | refused: business_partners_tax_id_format
+  9 | I07: two active partners cannot share a country and tax ID             | PASS   | refused: business_partners_one_active_per_tax_id
+ 10 | I06: a partner is merged into an active survivor                       | PASS   | accepted
+ 11 | I07: a merged partner may keep the same tax ID as its survivor         | PASS   | accepted
+ 12 | I06: a merged partner must point to its survivor                       | PASS   | refused: business_partners_merge_pointer
+ 13 | I06: a partner cannot be merged into itself                            | PASS   | refused: business_partners_merge_pointer
+ 14 | I06: a partner cannot be merged into a merged partner                  | PASS   | refused: I06: BP-990002 must be merged into an active partner (got BP-990003)
+ 15 | I06: a survivor cannot be merged while others point to it              | PASS   | refused: I06: BP-990001 is a merge survivor and cannot itself be merged; re-point its absorbed partners first
+ 16 | I05: a partner cannot be deleted                                       | PASS   | refused: I05: business partner BP-990002 cannot be deleted; merge it instead
+ 17 | I05: a partner ID cannot change                                        | PASS   | refused: I05: business partner ID BP-990002 cannot change
+ 18 | I05: a partner ID must follow BP-NNNNNN                                | PASS   | refused: business_partners_id_format
+ 19 | I05: a new partner gets its ID from the sequence                       | PASS   | true
+ 20 | A partner needs a legal or trading name                                | PASS   | refused: business_partners_has_name
+ 21 | I09: a web domain with www is refused                                  | PASS   | refused: business_partners_web_domain_format
+ 22 | I09: a web domain in upper case is refused                             | PASS   | refused: business_partners_web_domain_format
+ 23 | I09: a phone number not in international format is refused             | PASS   | refused: business_partners_phone_format
+ 24 | I09: a three-letter country code is refused                            | PASS   | refused: country_code_format
+(24 rows)
+
+psql:SQL/tests/_report.sql:23: NOTICE:  All 24 checks passed.
+DO
+ROLLBACK
+PASS  003_test_partners.sql                          24 checks
+----------------------------------------------------------
+== 004_test_roles.sql
+BEGIN
+DO
+CREATE TABLE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+INSERT 0 1
+INSERT 0 6
+ #  |                               description                               | result |                             detail                              
+----+-------------------------------------------------------------------------+--------+-----------------------------------------------------------------
+  1 | A customer role starts as a prospect with an unknown tier               | PASS   | accepted
+  2 | The effective tier of a new customer role is unknown                    | PASS   | true
+  3 | A calculated tier is stored with its score and reason codes             | PASS   | accepted
+  4 | A tier score above 60 is refused                                        | PASS   | refused: customer_roles_tier_score_range
+  5 | A known tier needs its score                                            | PASS   | refused: customer_roles_tier_score_when_known
+  6 | The group tier cannot be lower than the partner's own tier              | PASS   | refused: customer_roles_group_tier_not_lower
+  7 | A tier override needs the request that approved it                      | PASS   | refused: customer_roles_override_pair
+  8 | A tier override cannot be unknown                                       | PASS   | refused: customer_roles_override_not_unknown
+  9 | A tier override with its request is stored                              | PASS   | accepted
+ 10 | The effective tier is the override; calculated and group tiers are kept | PASS   | true
+ 11 | The effective tier cannot be typed                                      | PASS   | refused: column "tier_effective" can only be updated to DEFAULT
+ 12 | I10: an unknown customer stage is refused                               | PASS   | refused: customer_roles_stage_valid
+ 13 | An unknown industry code is refused                                     | PASS   | refused: customer_roles_industry_valid
+ 14 | The account owner must be a known sales owner ID                        | PASS   | refused: customer_roles_account_owner_id_fkey
+ 15 | I11: a block needs a reason, an approver and a time                     | PASS   | refused: customer_roles_block_complete
+ 16 | I11: a complete block is stored                                         | PASS   | accepted
+ 17 | Payment terms outside the allowed list are refused                      | PASS   | refused: customer_roles_payment_terms_valid
+ 18 | I10: a partner has at most one customer role                            | PASS   | refused: customer_roles_pkey
+ 19 | A malformed invoice email is refused                                    | PASS   | refused: email_address_format
+ 20 | A supplier role starts as requested                                     | PASS   | accepted
+ 21 | An approved supplier needs an approval time and approver                | PASS   | refused: supplier_roles_approved_has_approval
+ 22 | A supplier is approved with approver and time                           | PASS   | accepted
+ 23 | An unknown supplier category is refused                                 | PASS   | refused: supplier_roles_category_valid
+ 24 | One partner can be both a customer and a supplier                       | PASS   | accepted
+(24 rows)
+
+psql:SQL/tests/_report.sql:23: NOTICE:  All 24 checks passed.
+DO
+ROLLBACK
+PASS  004_test_roles.sql                             24 checks
+----------------------------------------------------------
+== 005_test_addresses_bank_contacts.sql
+BEGIN
+DO
+CREATE TABLE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+INSERT 0 1
+INSERT 0 6
+ #  |                           description                            | result |                    detail                    
+----+------------------------------------------------------------------+--------+----------------------------------------------
+  1 | A current registered address is stored                           | PASS   | accepted
+  2 | Only one registered address at a time                            | PASS   | refused: addresses_one_current_per_type
+  3 | An earlier registered address that ended before is stored        | PASS   | accepted
+  4 | Branch addresses may overlap                                     | PASS   | accepted
+  5 | I09: a Spanish postal code must start 01-52                      | PASS   | refused: addresses_postal_code_format
+  6 | I09: a Portuguese postal code must be NNNN-NNN                   | PASS   | refused: addresses_postal_code_format
+  7 | A French billing address is stored                               | PASS   | accepted
+  8 | A blank street is refused                                        | PASS   | refused: addresses_lines_not_blank
+  9 | A current Spanish bank account is stored                         | PASS   | accepted
+ 10 | The IBAN country is derived from the IBAN                        | PASS   | true
+ 11 | I13: a supplier has one current bank account at a time           | PASS   | refused: bank_accounts_one_current
+ 12 | I09: a Spanish IBAN must have 24 characters                      | PASS   | refused: bank_accounts_iban_length
+ 13 | I09: an IBAN with spaces or lower case is refused                | PASS   | refused: bank_accounts_iban_format
+ 14 | I13: verification time, method and verifier are filled together  | PASS   | refused: bank_accounts_verification_complete
+ 15 | I13: only a partner with a supplier role can have a bank account | PASS   | refused: bank_accounts_bp_id_fkey
+ 16 | An active contact person is stored                               | PASS   | accepted
+ 17 | I14: an active contact needs a work email                        | PASS   | refused: contact_persons_erasure_state
+ 18 | I14: an erased contact cannot keep personal data                 | PASS   | refused: contact_persons_erasure_state
+ 19 | I14: an erased contact keeps only its ID and erasure details     | PASS   | accepted
+ 20 | An unknown legal basis is refused                                | PASS   | refused: contact_persons_legal_basis_valid
+(20 rows)
+
+psql:SQL/tests/_report.sql:23: NOTICE:  All 20 checks passed.
+DO
+ROLLBACK
+PASS  005_test_addresses_bank_contacts.sql           20 checks
+----------------------------------------------------------
+== 006_test_hierarchy.sql
+BEGIN
+DO
+CREATE TABLE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+INSERT 0 1
+INSERT 0 6
+ #  |                                   description                                   | result |                                               detail                                               
+----+---------------------------------------------------------------------------------+--------+----------------------------------------------------------------------------------------------------
+  1 | A subsidiary is linked to its parent (2 levels)                                 | PASS   | accepted
+  2 | A third level is added                                                          | PASS   | accepted
+  3 | I12: a partner has one parent at a time                                         | PASS   | refused: partner_relationships_one_parent
+  4 | I12: a link that would create a loop is refused                                 | PASS   | refused: I12: BP-990301 cannot be placed under BP-990303 because that would create a loop
+  5 | I12: a partner cannot be its own parent                                         | PASS   | refused: partner_relationships_not_self
+  6 | Five levels are allowed                                                         | PASS   | accepted
+  7 | I12: a sixth level below is refused                                             | PASS   | refused: I12: hierarchy would have 6 levels (at most 5)
+  8 | I12: a new top parent above five levels is refused                              | PASS   | refused: I12: hierarchy would have 6 levels (at most 5)
+  9 | A closed (historic) link is not checked against the current hierarchy           | PASS   | accepted
+ 10 | I12: a merged partner cannot be in the current hierarchy                        | PASS   | refused: I12: both partners of a current hierarchy link must be active (BP-990307 under BP-990306)
+ 11 | The whole group is read top-down with one recursive query (5 members, 5 levels) | PASS   | true
+(11 rows)
+
+psql:SQL/tests/_report.sql:23: NOTICE:  All 11 checks passed.
+DO
+ROLLBACK
+PASS  006_test_hierarchy.sql                         11 checks
+----------------------------------------------------------
+== 007_test_links_history.sql
+BEGIN
+DO
+CREATE TABLE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+INSERT 0 1
+INSERT 0 6
+ #  |                                 description                                  | result |                                     detail                                      
+----+------------------------------------------------------------------------------+--------+---------------------------------------------------------------------------------
+  1 | A source record is linked to a partner                                       | PASS   | accepted
+  2 | I04: a source record belongs to one partner at a time                        | PASS   | refused: source_links_one_partner_at_a_time
+  3 | The link is closed and the record moves to another partner                   | PASS   | accepted
+  4 | Trace: the current partner of crm C-701 is found with one query              | PASS   | true
+  5 | Trace: the partner of crm C-701 on 3 November is still found                 | PASS   | true
+  6 | I04: a link must name a stored source record                                 | PASS   | refused: I04: no stored source record support / S-NONE
+  7 | A steward-confirmed link needs the suggestion and the steward                | PASS   | refused: source_links_steward_evidence
+  8 | A merge link needs its merge event                                           | PASS   | refused: source_links_merge_evidence
+  9 | I04: a current link must point to an active partner                          | PASS   | refused: I04: a current link must point to an active partner (BP-990403 is not)
+ 10 | A field change is recorded with its source record                            | PASS   | accepted
+ 11 | A later change is recorded                                                   | PASS   | accepted
+ 12 | Lineage: the value valid on 5 November and the record it came from are found | PASS   | true
+ 13 | I16: a field change must name its lineage                                    | PASS   | refused: field_history_lineage
+ 14 | A change must change the value                                               | PASS   | refused: field_history_value_changed
+ 15 | The survivorship step is 1 to 4                                              | PASS   | refused: field_history_step_range
+ 16 | I15: field history cannot be updated                                         | PASS   | refused: I15: hub.field_history is append-only (UPDATE refused)
+ 17 | I15: field history cannot be deleted                                         | PASS   | refused: I15: hub.field_history is append-only (DELETE refused)
+ 18 | I20: a link must name a loaded rules version                                 | PASS   | refused: source_links_rules_version_fkey
+(18 rows)
+
+psql:SQL/tests/_report.sql:23: NOTICE:  All 18 checks passed.
+DO
+ROLLBACK
+PASS  007_test_links_history.sql                     18 checks
+----------------------------------------------------------
+== 008_test_matching_merges.sql
+BEGIN
+DO
+CREATE TABLE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+INSERT 0 1
+INSERT 0 6
+ #  |                                description                                 | result |                                detail                                 
+----+----------------------------------------------------------------------------+--------+-----------------------------------------------------------------------
+  1 | A suggestion stores its pair in order with rule, score and compared values | PASS   | accepted
+  2 | I17: a pair stored in the wrong order is refused                           | PASS   | refused: match_suggestions_pair_ordered
+  3 | I17: only one open suggestion per pair                                     | PASS   | refused: match_suggestions_one_open_per_pair
+  4 | Rule and strength must agree (M3 is strong)                                | PASS   | refused: match_suggestions_rule_strength_valid
+  5 | A score above 1 is refused                                                 | PASS   | refused: match_suggestions_score_range
+  6 | I17: a decided suggestion needs a decider and a time                       | PASS   | refused: match_suggestions_decision_complete
+  7 | The steward rejects the suggestion                                         | PASS   | accepted
+  8 | The pair can be suggested again after a record changes                     | PASS   | accepted
+  9 | An automatic M1 merge needs no approver                                    | PASS   | accepted
+ 10 | A second, steward-approved merge is recorded                               | PASS   | accepted
+ 11 | A merge from a suggestion needs an approver                                | PASS   | refused: merge_events_approver_required
+ 12 | A partner cannot be merged with itself                                     | PASS   | refused: merge_events_two_partners
+ 13 | A merge is undone by an undo naming the same partners                      | PASS   | accepted
+ 14 | A merge can be undone only once                                            | PASS   | refused: merge_events_undone_once
+ 15 | An undo must name the same partners as the merge it reverses               | PASS   | refused: merge_events_undo_same_partners
+ 16 | An undo cannot reverse another undo                                        | PASS   | refused: An undo must reverse a merge, not another undo
+ 17 | An undo must point to the merge it reverses                                | PASS   | refused: merge_events_undo_pointer
+ 18 | I15: merge events cannot be changed                                        | PASS   | refused: I15: governance.merge_events is append-only (UPDATE refused)
+(18 rows)
+
+psql:SQL/tests/_report.sql:23: NOTICE:  All 18 checks passed.
+DO
+ROLLBACK
+PASS  008_test_matching_merges.sql                   18 checks
+----------------------------------------------------------
+== 009_test_requests.sql
+BEGIN
+DO
+CREATE TABLE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+INSERT 0 1
+INSERT 0 6
+ #  |                             description                              | result |                                     detail                                      
+----+----------------------------------------------------------------------+--------+---------------------------------------------------------------------------------
+  1 | A new request gets an RQ-NNNNNN ID and starts as a draft             | PASS   | true
+  2 | A submitted request is stored                                        | PASS   | accepted
+  3 | An unknown request type is refused                                   | PASS   | refused: change_requests_type_valid
+  4 | A request past draft must have a submission time                     | PASS   | refused: change_requests_submitted_unless_draft
+  5 | A closed request must have a closing time                            | PASS   | refused: change_requests_closed_time
+  6 | A request cannot close before it was submitted                       | PASS   | refused: change_requests_time_order
+  7 | Proposed values must be a JSON object                                | PASS   | refused: change_requests_values_object
+  8 | The first status row has no previous status                          | PASS   | accepted
+  9 | Later status rows name the previous status                           | PASS   | refused: request_status_history_first_row
+ 10 | A status row must change the status                                  | PASS   | refused: request_status_history_changes
+ 11 | I15: status history cannot be changed                                | PASS   | refused: I15: governance.request_status_history is append-only (UPDATE refused)
+ 12 | I18: another person approves the request                             | PASS   | accepted
+ 13 | I18: nobody approves a request they raised                           | PASS   | refused: request_approvals_four_eyes
+ 14 | I18: the approval cannot name a different requester than the request | PASS   | refused: request_approvals_request_requester
+ 15 | I18: the requester cannot be changed after an approval               | PASS   | refused: request_approvals_request_requester
+ 16 | An approver role outside governance is refused                       | PASS   | refused: request_approvals_role_valid
+ 17 | I15: approvals cannot be changed                                     | PASS   | refused: I15: governance.request_approvals is append-only (UPDATE refused)
+ 18 | Evidence is stored as a reference and checksum                       | PASS   | accepted
+ 19 | An evidence checksum must be 64 hex characters                       | PASS   | refused: sha256_hex_format
+(19 rows)
+
+psql:SQL/tests/_report.sql:23: NOTICE:  All 19 checks passed.
+DO
+ROLLBACK
+PASS  009_test_requests.sql                          19 checks
+----------------------------------------------------------
+== 010_test_quality.sql
+BEGIN
+DO
+CREATE TABLE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+INSERT 0 1
+INSERT 0 6
+ # |                        description                         | result |                                  detail                                  
+---+------------------------------------------------------------+--------+--------------------------------------------------------------------------
+ 1 | A request-scoped run must name its request                 | PASS   | refused: quality_runs_request_scope
+ 2 | A rule result for a partner is stored                      | PASS   | accepted
+ 3 | A result is for one partner or one source record, not both | PASS   | refused: quality_results_one_subject
+ 4 | A rule ID outside the C/V/U/K/T pattern is refused         | PASS   | refused: quality_results_rule_id_format
+ 5 | A rule is checked once per subject per run                 | PASS   | refused: quality_results_once_per_run
+ 6 | An unknown outcome is refused                              | PASS   | refused: quality_results_outcome_valid
+ 7 | I15: quality results cannot be changed                     | PASS   | refused: I15: governance.quality_results is append-only (UPDATE refused)
+ 8 | A run cannot finish before it started                      | PASS   | refused: quality_runs_time_order
+(8 rows)
+
+psql:SQL/tests/_report.sql:23: NOTICE:  All 8 checks passed.
+DO
+ROLLBACK
+PASS  010_test_quality.sql                            8 checks
+----------------------------------------------------------
+== 011_test_erasure.sql
+BEGIN
+DO
+CREATE TABLE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+INSERT 0 1
+INSERT 0 6
+ #  |                                          description                                          | result |                                                 detail                                                 
+----+-----------------------------------------------------------------------------------------------+--------+--------------------------------------------------------------------------------------------------------
+  1 | An erasure needs an approved erasure request                                                  | PASS   | refused: Request RQ-990602 is not an approved erasure request
+  2 | The contact is erased in one transaction                                                      | PASS   | accepted
+  3 | I14: the contact keeps no personal data                                                       | PASS   | true
+  4 | No stored source record still holds the person (any letter case)                              | PASS   | true
+  5 | Other people in the same record are kept                                                      | PASS   | true
+  6 | The proof counts 2 records in crm and support, without the erased data                        | PASS   | true
+  7 | A record without the person is untouched                                                      | PASS   | true
+  8 | Redacted records keep their original content hash (an old extract cannot bring the data back) | PASS   | true
+  9 | A contact cannot be erased twice                                                              | PASS   | refused: Contact 00000000-0000-0000-0000-000000000601 does not exist or is already erased
+ 10 | I02: after the erasure, source records are insert-only again                                  | PASS   | refused: I02: source records are insert-only (update refused for ed9a2ce9-451d-46ad-af42-c89c2b2b318d)
+ 11 | I15: an erasure proof cannot be changed                                                       | PASS   | refused: I15: governance.erasure_proofs is append-only (UPDATE refused)
+(11 rows)
+
+psql:SQL/tests/_report.sql:23: NOTICE:  All 11 checks passed.
+DO
+ROLLBACK
+PASS  011_test_erasure.sql                           11 checks
+----------------------------------------------------------
+== 012_test_access.sql
+BEGIN
+DO
+CREATE TABLE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+INSERT 0 1
+INSERT 0 6
+ #  |                           description                           | result |                         detail                         
+----+-----------------------------------------------------------------+--------+--------------------------------------------------------
+  1 | A01: reporting cannot read raw source records                   | PASS   | refused: permission denied for schema source
+  2 | A01: reporting can read golden partners                         | PASS   | true
+  3 | A01: reporting cannot write                                     | PASS   | refused: permission denied for table business_partners
+  4 | A02: reporting cannot read contact names                        | PASS   | refused: permission denied for table contact_persons
+  5 | A02: reporting can count contacts and their status              | PASS   | true
+  6 | A02: reporting cannot read IBANs                                | PASS   | refused: permission denied for table bank_accounts
+  7 | A02: reporting can see the IBAN country and verification status | PASS   | true
+  8 | A02: reporting cannot read proposed values of requests          | PASS   | refused: permission denied for table change_requests
+  9 | A02: reporting cannot read compared values of match suggestions | PASS   | refused: permission denied for table match_suggestions
+ 10 | A03: reporting does not see the history of bank fields          | PASS   | true
+ 11 | A03: reporting sees the history of other fields                 | PASS   | true
+ 12 | A03: the table owner still sees the bank history                | PASS   | true
+ 13 | Reporting can use the working-time function                     | PASS   | true
+(13 rows)
+
+psql:SQL/tests/_report.sql:23: NOTICE:  All 13 checks passed.
+DO
+ROLLBACK
+PASS  012_test_access.sql                            13 checks
+----------------------------------------------------------
+== 013_test_working_minutes.sql
+BEGIN
+DO
+CREATE TABLE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+INSERT 0 1
+INSERT 0 6
+ # |                               description                                | result | detail 
+---+--------------------------------------------------------------------------+--------+--------
+ 1 | A full working day is 540 minutes                                        | PASS   | true
+ 2 | 8 working hours inside one day (same as LeadFlow's self-check)           | PASS   | true
+ 3 | Across a weekend only working time counts (Fri 17:00 to Mon 10:00 = 120) | PASS   | true
+ 4 | Nights are not counted (18:00 to 09:00 next day = 0)                     | PASS   | true
+ 5 | A whole week is 5 x 540 minutes                                          | PASS   | true
+ 6 | Across the change from summer time (25 Oct 2026) days stay 540 minutes   | PASS   | true
+ 7 | An end before the start gives 0                                          | PASS   | true
+ 8 | A missing moment gives NULL                                              | PASS   | true
+ 9 | Moments given in another time zone are converted to Madrid time          | PASS   | true
+(9 rows)
+
+psql:SQL/tests/_report.sql:23: NOTICE:  All 9 checks passed.
+DO
+ROLLBACK
+PASS  013_test_working_minutes.sql                    9 checks
+
+Summary:  13 files passed, 0 failed; 209 checks passed
+Finished: 2026-11-19 00:38:28 CET
+Log:      docs/evidence/test_run_2026-11-19_003827.log
