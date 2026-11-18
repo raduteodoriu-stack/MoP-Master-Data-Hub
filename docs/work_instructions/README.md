@@ -2,7 +2,7 @@
 
 How the steward handles each request type. The decision rights are in
 [governance.md](../governance.md); the evidence and targets come from
-[`rules/MDH-RULES-v1.0.json`](../../rules/MDH-RULES-v1.0.json) (`request_types`, `requests`).
+[`rules/MDH-RULES-v1.1.json`](../../rules/MDH-RULES-v1.1.json) (`request_types`, `requests`).
 
 > Skeleton pages (MDH-002). The step-by-step procedures are written in MDH-007, when the request workflow is built.
 
@@ -14,6 +14,7 @@ How the steward handles each request type. The decision rights are in
 | Create supplier (request) | 8 h | [create-supplier.md](create-supplier.md) |
 | Approve supplier for payment | 16 h | [approve-supplier.md](approve-supplier.md) |
 | Change low-risk field | 8 h | [change-low-risk.md](change-low-risk.md) |
+| Override customer tier | 8 h | [override-customer-tier.md](override-customer-tier.md) |
 | Change high-risk field | 16 h | [change-high-risk.md](change-high-risk.md) |
 | Change supplier bank details | 16 h | [change-bank-details.md](change-bank-details.md) |
 | Block or unblock | 4 h | [block-unblock.md](block-unblock.md) |

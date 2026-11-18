@@ -2,7 +2,7 @@
 
 What a correct business partner record looks like: its parts, how each field is written, and
 which fields are mandatory at each lifecycle stage. The machine-readable version is
-[`rules/MDH-RULES-v1.0.json`](../rules/MDH-RULES-v1.0.json); if the two ever disagree, the
+[`rules/MDH-RULES-v1.1.json`](../rules/MDH-RULES-v1.1.json); if the two ever disagree, the
 rules file is what the engine applies and this page must be corrected.
 
 ## Decisions
@@ -19,12 +19,13 @@ rules file is what the engine applies and this page must be corrected.
 | D8 | Only an exact tax ID match (M1) is linked automatically. Every other match is decided by the steward |
 | D9 | Individuals (freelancers) are out of scope as suppliers |
 | D10 | Review periods: customers and approved suppliers every 12 months (T01); supplier bank details every 24 months (T02). Request targets as in section 7 |
+| D11 | Customer tier replaces *segment*: calculated from industry and employee band with LeadFlow's fit points, rolled up to the company group, overridable only through a request approved by the Sales Director (rules v1.1) |
 
 ## 1. What a business partner record contains
 | Part | Holds | One per partner? |
 |---|---|---|
 | General data | Identity shared by every role: names, legal form, country, tax ID, web domain, registered address | Yes |
-| Customer role | Segment, account owner, industry, employee band, billing address, bill-to party, payment terms, invoice email, billing block | At most one |
+| Customer role | Customer tier (calculated, group and override), account owner, industry, employee band, billing address, bill-to party, payment terms, invoice email, billing block | At most one |
 | Supplier role | Category, internal contact, payment terms, remittance email, bank details and their verification, payment block | At most one |
 | Contact persons | Name, work email, role, legal basis | Many |
 | Relationships | Parent partner and type of link | At most one parent |
@@ -73,10 +74,43 @@ M = mandatory, O = optional, – = not applicable.
 | Remittance email | – | – | O | M |
 | At least one contact person | O | M | O | M |
 
+## Customer tier (rules v1.1)
+
+Every customer role (prospects included) gets a tier, scored the same way as LeadFlow's fit
+score: points per attribute, added into a score, and fixed thresholds that turn the score into
+a tier. Only the two stable company attributes count. LeadFlow's research need, frequency and
+readiness change with every sales conversation, so they belong to the lead, not to master data.
+
+| Attribute | Points (same as LeadFlow) |
+|---|---|
+| Industry | Core research (`market_research`, `polling`, `research_consultancy`, `panel_sample_provider`) 40 · research-adjacent (`research_technology`, `advertising_media_pr_agency`, `ux_research_agency`, `management_consultancy`) 30 · other named industries 20 · `other` 0 |
+| Employee band | 1–10: 0 · 11–49: 5 · 50–249: 10 · 250–999: 15 · 1000+: 20 |
+
+| Tier | Score (0–60) | Typical customers |
+|---|---|---|
+| `tier_1` Strategic | 50 or more | Core research companies with 50+ employees; research-adjacent companies with 1000+ |
+| `tier_2` Core | 30–49 | Smaller core research firms; most research-adjacent companies; companies in other named industries with 50+ |
+| `tier_3` Standard | below 30 | Small companies in other named industries; industry `other` |
+| `unknown` | – | Industry or employee band is `unknown`; no tier is guessed |
+
+**Three tiers are kept for each customer:**
+
+1. **Calculated tier:** from the partner's own industry and employee band, with its score and
+   reason codes (for example `TIER_INDUSTRY_CORE`, `TIER_SIZE_50_249`).
+2. **Group tier:** the highest calculated tier among all current members of the partner's
+   company group (`TIER_GROUP_ROLLUP` when it is higher than its own). A partner with no group
+   has a group tier equal to its calculated tier.
+3. **Override:** set only through an `override_customer_tier` request approved by the Sales
+   Director. The calculated and group tiers are kept beside it.
+
+The **effective tier** is the override if there is one, otherwise the group tier. Tiers are
+recalculated when industry, employee band or the hierarchy changes, and when a new rules version
+is loaded. KPI12 (Tier Override Rate) shows how often Sales disagrees with the rules.
+
 ## Controlled values kept in the rules file
 
 Some lists are too long for these tables and live only in
-[`rules/MDH-RULES-v1.0.json`](../rules/MDH-RULES-v1.0.json) under `controlled_values` and
+[`rules/MDH-RULES-v1.1.json`](../rules/MDH-RULES-v1.1.json) under `controlled_values` and
 `countries`: legal forms per country, free email domains (rule V05), name placeholders (rule
 V11), legal bases for contact persons, block reasons, industry codes and employee bands (the
 same lists as LeadFlow).

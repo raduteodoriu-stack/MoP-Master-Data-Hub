@@ -9,7 +9,7 @@ each stage, and who may approve what. The rules that put this into practice are 
 | Role | Who at MoP Cloud | Responsible for |
 |---|---|---|
 | Data owner, legal and financial data | Finance Controller | Standard for legal name, tax ID, addresses, payment terms and bank details. Approves high-risk changes to them |
-| Data owner, commercial customer data | Sales Director | Standard for segment, industry, account owner and company hierarchy. Approves hierarchy changes |
+| Data owner, commercial customer data | Sales Director | Standard for customer tier, industry, account owner and company hierarchy. Approves hierarchy changes and tier overrides |
 | Data owner, commercial supplier data | Head of Operations | Standard for supplier category and internal contact. Approves supplier onboarding from the business side |
 | Master data steward | Master Data Specialist | Processes requests, reviews possible duplicates, monitors quality, proposes rule changes, writes work instructions |
 | Requester | Sales, Finance (receivables and payables), Operations, Customer Success | Raises create, change and block requests, with evidence |
@@ -24,7 +24,7 @@ Field-level standards are in [data_standards.md](data_standards.md).
 | Legal identity | Legal name, legal form, tax ID, country of registration | Finance | ERP |
 | Addresses | Registered address, billing address | Finance | ERP |
 | Customer payment | Payment terms, bill-to party, invoice email, billing block | Finance | ERP |
-| Customer commercial | Trading name, web domain, industry, employee band, segment, account owner | Sales | CRM |
+| Customer commercial | Trading name, web domain, industry, employee band, account owner, customer tier override | Sales | CRM (tier override: hub) |
 | Supplier payment | Bank details, payment terms, remittance email, payment block | Finance | ERP |
 | Supplier commercial | Supplier category, internal contact | Operations | Procurement spreadsheet until migrated, then the hub |
 | Relationships | Parent company, top company of the group | Sales | Hub (kept by the steward) |
@@ -53,6 +53,7 @@ Above every row: nobody approves a request they raised.
 | Request a new supplier | Operations or any budget holder | Steward | Head of Operations |
 | Approve a supplier for payment | Operations | Steward (checks tax ID and bank evidence) | Finance Controller |
 | Change a low-risk field (web domain, industry, employee band, phone, supplier category) | Any requester | Steward | Steward |
+| Override a customer tier | Sales | Steward | Sales Director |
 | Change a high-risk field (legal name, tax ID, addresses, payment terms, bill-to) | Finance, Sales or Operations | Steward | Finance Controller |
 | Change supplier bank details | Finance (payables) | Steward, after independent verification with the supplier | Finance Controller |
 | Merge: exact match on tax ID | System | Automatic | Rules. Logged and reversible |
