@@ -2,7 +2,7 @@
 
 What a correct business partner record looks like: its parts, how each field is written, and
 which fields are mandatory at each lifecycle stage. The machine-readable version is
-[`rules/MDH-RULES-v1.2.json`](../rules/MDH-RULES-v1.2.json); if the two ever disagree, the
+[`rules/MDH-RULES-v1.3.json`](../rules/MDH-RULES-v1.3.json); if the two ever disagree, the
 rules file is what the engine applies and this page must be corrected.
 
 ## Decisions
@@ -21,18 +21,34 @@ rules file is what the engine applies and this page must be corrected.
 | D10 | Review periods: customers and approved suppliers every 12 months (T01); supplier bank details every 24 months (T02). Request targets as in section 7 |
 | D11 | Customer tier replaces *segment*: calculated from industry and employee band with LeadFlow's fit points, rolled up to the company group, overridable only through a request approved by the Sales Director (rules v1.1) |
 | D12 | M1 links on a shared tax ID only when the names also agree (0.90 or more); otherwise the new suggestion rule M1B sends the pair to the steward, and warning rule K09 flags a source record carrying another partner's tax ID (rules v1.2) |
+| D13 | Rules v1.3: matching fixes G1–G5 (defined similarity, independent bank-risk check, prefix names, invalid tax IDs ignored, no upper limit on M5); former names used in matching; corporate events and supplier reactivation as requests; insolvency and absorbed blocks with a successor link; contact status; holder-name check with match, close match and no match; factoring and alternative payees as documented exceptions; simulated VIES status; employee–supplier cross-match; GDPR retention and suppression list |
 
 ## 1. What a business partner record contains
 | Part | Holds | One per partner? |
 |---|---|---|
-| General data | Identity shared by every role: names, legal form, country, tax ID, web domain, registered address | Yes |
+| General data | Identity shared by every role: names (current and former), legal form, country, tax ID, VIES status, web domain, registered address | Yes |
 | Customer role | Customer tier (calculated, group and override), account owner, industry, employee band, billing address, bill-to party, payment terms, invoice email, billing block | At most one |
-| Supplier role | Category, internal contact, payment terms, remittance email, bank details and their verification, payment block | At most one |
-| Contact persons | Name, work email, role, legal basis | Many |
-| Relationships | Parent partner and type of link | At most one parent |
+| Supplier role | Category, internal contact, payment terms, remittance email, bank details with payee type and their verification, last ERP activity, payment block | At most one |
+| Contact persons | Name, work email, role, legal basis, status (active, left the company, email bouncing, erased) and date last verified | Many |
+| Relationships | Parent partner (`subsidiary_of`) and, after a merger, the successor (`successor_of`) | At most one of each at a time |
 | Cross-reference | The source records that make up this partner | Many |
 
 A *branch* (same legal entity, another address) is an extra address on the same partner. A *subsidiary* (its own tax ID) is its own partner with a parent.
+
+### Lifecycle events and new fields in rules v1.3
+
+| Topic | Standard |
+|---|---|
+| Corporate events | A rename, legal form change or merger is a `corporate_event` request with a registry extract as evidence. After a rename the old name is kept as a former name and used in matching. After a merger the absorbed partner gets block reason `absorbed`, its roles become inactive, and it is linked to the surviving partner with `successor_of` |
+| Registry status | A simulated registry extract gives each company's status by tax ID: active, ceased, insolvency proceedings or absorbed. A partner with an active role and a non-active registry status becomes a steward task (K11); insolvency is blocked with reason `insolvency`, approved by the Finance Controller |
+| Dormant suppliers | The ERP's last purchase order or invoice date is kept as the supplier's last activity. After 12 months without activity the supplier is flagged for deactivation (T05); bringing it back needs a `reactivate_supplier` request, which includes verifying the bank details again |
+| Bank details | Payee type `own_account`, `factoring_company` or `alternative_payee`; anything but own account needs an assignment letter. The holder name check returns match, close match (similarity 0.85 or more) or no match, like the payee-name check banks run on euro transfers (K02). Changing back to a previous IBAN within 90 days, or two changes within 30 days, alerts the Finance Controller (K13) |
+| Contact status | `active`, `left_company`, `bounced` or `erased`, with the date last verified. A bank change may only be verified through an active contact verified in the last 12 months (K12) |
+| VIES status | For partners registered outside Spain (intra-EU for MoP Cloud): `valid`, `not_registered` or `invalid`, with the check date and an evidence reference. Checked again every 12 months and after a tax ID change (V13). Simulated: no live service is called |
+| Employees | A synthetic HR extract (IBAN, address, phone) is compared with suppliers; a match goes to the Finance Controller, who may clear it (K10). The extract is never visible to reporting |
+| Retention | Prospect contacts with no contact for 3 years are anonymised (T06); customer contacts are kept for the relationship plus 3 years. Erased or opted-out emails are kept only as a SHA-256 hash on a suppression list, so a source cannot bring the person back (U04) |
+| Physical address | An approved supplier needs a street address, not only a PO box (V12) |
+| Address standardisation | Upper case, accents removed, abbreviations expanded (`C/` and `Cl` → CALLE, `Avda.` → AVENIDA, `R.` → RUA, `Bd` → BOULEVARD), ordinal marks and punctuation removed. Used by the employee cross-match, matching and K06 |
 
 ## 2. Field standards
 | Field | Standard | Risk |
@@ -111,7 +127,7 @@ is loaded. KPI12 (Tier Override Rate) shows how often Sales disagrees with the r
 ## Controlled values kept in the rules file
 
 Some lists are too long for these tables and live only in
-[`rules/MDH-RULES-v1.2.json`](../rules/MDH-RULES-v1.2.json) under `controlled_values` and
+[`rules/MDH-RULES-v1.3.json`](../rules/MDH-RULES-v1.3.json) under `controlled_values` and
 `countries`: legal forms per country, free email domains (rule V05), name placeholders (rule
 V11), legal bases for contact persons, block reasons, industry codes and employee bands (the
 same lists as LeadFlow).

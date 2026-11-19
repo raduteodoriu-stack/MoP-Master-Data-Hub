@@ -17,6 +17,8 @@ How the steward handles each request type. The decision rights are in
 | Override customer tier | 8 h | [override-customer-tier.md](override-customer-tier.md) |
 | Change high-risk field | 16 h | [change-high-risk.md](change-high-risk.md) |
 | Change supplier bank details | 16 h | [change-bank-details.md](change-bank-details.md) |
+| Corporate event (rename, legal form change, merger or absorption) | 16 h | [corporate-event.md](corporate-event.md) |
+| Reactivate a dormant supplier | 16 h | [reactivate-supplier.md](reactivate-supplier.md) |
 | Block or unblock | 4 h | [block-unblock.md](block-unblock.md) |
 | Merge, undo merge, hierarchy change | 16 h | [merge-hierarchy.md](merge-hierarchy.md) |
 | Mass upload | 24 h | [mass-upload.md](mass-upload.md) |

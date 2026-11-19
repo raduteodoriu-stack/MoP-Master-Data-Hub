@@ -1,0 +1,631 @@
+{
+  "batch": "C",
+  "title": "Company lifecycle, fraud and privacy",
+  "rules_version": "MDH-RULES-v1.3",
+  "as_of": "2026-11-27T18:00:00+01:00",
+  "status": "reviewed",
+  "note": "Synthetic data only. Registry and HR extracts are simulated files; IBANs use the invented bank code 9999/99999.",
+  "cases": [
+    {
+      "id": "C-01",
+      "rules": [
+        "corporate_event",
+        "matching: former names"
+      ],
+      "purpose": "Rename: the old name is kept and still matches",
+      "variants": [
+        {
+          "label": "event",
+          "given": "Request `corporate_event` (rename) for BP-900401 'Cifras Norte S.L.' (NIF B44730216) → 'Norte Analytics S.L.', registry extract attached, approved by the Finance Controller",
+          "input": {},
+          "expected": {
+            "outcome": "applied",
+            "detail": "Legal name changed; field history row old → new with the request as lineage; 'CIFRAS NORTE' kept as a former name; tax ID unchanged"
+          }
+        },
+        {
+          "label": "pass",
+          "given": "Delta CRM record 'Cifras Norte' (no tax ID, domain cifras-norte.example, ES) after the rename",
+          "input": {},
+          "expected": {
+            "outcome": "suggestion",
+            "detail": "M3 strong to BP-900401: similarity 1.0 against the former name, same domain and country. Without former names it would score 0.37 and become a new partner"
+          }
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "C-02",
+      "rules": [
+        "corporate_event",
+        "V10",
+        "M1"
+      ],
+      "purpose": "Legal form change: SARL becomes SAS, SIREN unchanged",
+      "variants": [
+        {
+          "label": "fail",
+          "given": "ERP sends 'Études Essai SAS' (SIREN 812436053) before the event is recorded; golden legal form is still SARL",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "V10 warning: name ends SAS, legal form SARL. Matching is unaffected (legal forms are removed): M1 links the record to the same partner, no duplicate"
+          }
+        },
+        {
+          "label": "pass",
+          "given": "Request `corporate_event` (legal_form_change) approved: legal form SAS",
+          "input": {},
+          "expected": {
+            "outcome": "pass",
+            "detail": "V10 passes; SIREN and VAT number unchanged"
+          }
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "C-03",
+      "rules": [
+        "corporate_event",
+        "K11"
+      ],
+      "purpose": "Merger: the absorbed supplier is closed and linked to its successor",
+      "variants": [
+        {
+          "label": "fail",
+          "given": "Registry extract: 'Paneles Prueba S.L.' (NIF B31488208) absorbed on 10 Nov 2026; BP-900402 still has an approved supplier role and no block",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "K11 error: steward task due within one working day of the extract load"
+          }
+        },
+        {
+          "label": "event",
+          "given": "Request `corporate_event` (merger_absorption): BP-900402 absorbed by BP-900403 'Grupo Ensayo S.A.', merger deed attached, approved by the Finance Controller",
+          "input": {},
+          "expected": {
+            "outcome": "applied",
+            "detail": "BP-900402: block reason absorbed, supplier role inactive, `successor_of` link to BP-900403; steward reviews its contacts and hierarchy"
+          }
+        },
+        {
+          "label": "pass",
+          "given": "Next K11 run",
+          "input": {},
+          "expected": {
+            "outcome": "pass",
+            "detail": "Absorbed in the registry and blocked as absorbed in the hub"
+          }
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "C-04",
+      "rules": [
+        "K06"
+      ],
+      "purpose": "The source keeps using an absorbed supplier",
+      "variants": [
+        {
+          "label": "fail",
+          "given": "Delta ERP extract: supplier account of BP-900402 still active, new purchase on 18 Nov 2026",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "K06 warning: the golden record is blocked (absorbed) but the ERP account is active; reported to the ERP owner. The record stays linked to BP-900402: it is not moved to the successor automatically"
+          }
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "C-05",
+      "rules": [
+        "K11",
+        "block_unblock"
+      ],
+      "purpose": "Insolvency and ceased companies from the registry extract",
+      "variants": [
+        {
+          "label": "fail",
+          "given": "Registry extract: 'Muestra Clara S.L.' (NIF B66201948) in insolvency proceedings (official gazette notice 12 Nov 2026); BP-900404 is an active customer, no block",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "K11 error: steward task within one working day; the Finance Controller approves block reason insolvency"
+          }
+        },
+        {
+          "label": "pass",
+          "given": "After the block",
+          "input": {},
+          "expected": {
+            "outcome": "pass",
+            "detail": "Insolvency in the registry, insolvency block in the hub"
+          }
+        },
+        {
+          "label": "pass",
+          "given": "Registry extract: French company SIREN 855021903 ceased; its partner BP-900405 already has customer stage inactive and a compliance block",
+          "input": {},
+          "expected": {
+            "outcome": "pass",
+            "detail": "No active role, so nothing to act on"
+          }
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "C-06",
+      "rules": [
+        "T05"
+      ],
+      "purpose": "Dormant suppliers (as of 27 Nov 2026)",
+      "variants": [
+        {
+          "label": "fail",
+          "given": "Approved supplier BP-900406, last ERP activity 15 Oct 2025",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "T05 warning: 13 months without activity, flagged for deactivation; the steward sets the supplier stage to inactive"
+          }
+        },
+        {
+          "label": "pass",
+          "given": "Approved supplier, last ERP activity 20 May 2026",
+          "input": {},
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "n/a",
+          "given": "Requested supplier with no activity yet",
+          "input": {},
+          "expected": {
+            "outcome": "not_applicable",
+            "detail": "Rule applies to approved suppliers"
+          }
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "C-07",
+      "rules": [
+        "reactivate_supplier",
+        "T02",
+        "K12"
+      ],
+      "purpose": "Reactivating a dormant supplier needs fresh bank verification",
+      "variants": [
+        {
+          "label": "returned",
+          "given": "Request `reactivate_supplier` for BP-900406; bank details last verified 3 Mar 2024",
+          "input": {},
+          "expected": {
+            "outcome": "returned",
+            "detail": "T02 fails (more than 24 months): the steward returns it; the SLA clock pauses"
+          }
+        },
+        {
+          "label": "approved",
+          "given": "Bank details verified again on 24 Nov 2026 through an active contact verified on 10 Jun 2026; resubmitted",
+          "input": {},
+          "expected": {
+            "outcome": "approved",
+            "detail": "Finance Controller approves; supplier stage approved again"
+          }
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "C-08",
+      "rules": [
+        "K10"
+      ],
+      "purpose": "Employee–supplier cross-match against the synthetic HR extract",
+      "variants": [
+        {
+          "label": "fail",
+          "given": "Supplier BP-900407 has IBAN ES5999990007000123123123; the same IBAN is on employee E-0042 in the HR extract",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "K10 error: sent to the Finance Controller; the supplier cannot be approved"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Supplier address 'C/ Mallorca 120, 3º 2ª, 08036 Barcelona' vs employee address 'Calle Mallorca 120 3 2, 08036 Barcelona'",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "Equal after address standardisation (C/ → CALLE, ordinals and punctuation removed)"
+          }
+        },
+        {
+          "label": "pass",
+          "given": "Supplier with no IBAN, address or phone in common with any employee",
+          "input": {},
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "pass",
+          "given": "The IBAN match above, cleared by the Finance Controller (an employee's company with a documented conflict-of-interest declaration)",
+          "input": {},
+          "expected": {
+            "outcome": "pass",
+            "detail": "Clearance recorded with approver and reason"
+          }
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "C-09",
+      "rules": [
+        "K12"
+      ],
+      "purpose": "Bank changes are verified only through a reliable contact",
+      "variants": [
+        {
+          "label": "fail",
+          "given": "Call-back to a contact with status left_company",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "K12 error: request returned"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Call-back to an active contact last verified 20 Aug 2025",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "Verified more than 12 months ago"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "'Verified' by replying to the email that asked for the change",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "Never through the requesting message"
+          }
+        },
+        {
+          "label": "pass",
+          "given": "Call-back to an active contact verified on 10 Jun 2026, using the phone number already on file",
+          "input": {},
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "C-10",
+      "rules": [
+        "K13"
+      ],
+      "purpose": "Change-back and rapid bank changes",
+      "variants": [
+        {
+          "label": "fail",
+          "given": "IBAN ES3899990004000111222333 → ES4099990005000444555666 on 2 Nov 2026, then back to ES3899990004000111222333 on 20 Nov 2026",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "K13 warning: back to a previous IBAN within 90 days; sent to the Finance Controller"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "ES3899990004000111222333 → ES4099990005000444555666 on 5 Nov 2026, then ES4099990005000444555666 → ES4299990006000777888999 on 25 Nov 2026",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "Two changes within 30 days"
+          }
+        },
+        {
+          "label": "pass",
+          "given": "One change on 12 May 2026, none since",
+          "input": {},
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "C-11",
+      "rules": [
+        "K02",
+        "U03",
+        "M6"
+      ],
+      "purpose": "Factoring company as a documented exception",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Supplier 'Logiciels Essai SAS' (SIREN 793155201) paid to 'Affacturage Test SA', IBAN FR9899999000200009876543217, payee type factoring_company, assignment letter attached",
+          "input": {},
+          "expected": {
+            "outcome": "pass",
+            "detail": "K02 passes by the documented exception; the same IBAN on two other suppliers of the same factor passes U03 and is not flagged by M6"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "The same bank details with payee type own_account and no assignment letter",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "K02 no match (similarity 0.323), U03 fails, M6 bank-risk suggestion"
+          }
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "C-12",
+      "rules": [
+        "K02"
+      ],
+      "purpose": "Holder-name check with three outcomes, like the payee-name check banks run on euro transfers",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Legal name 'Paneles Prueba S.L.', holder 'PANELES PRUEBA SL'",
+          "input": {},
+          "expected": {
+            "outcome": "pass",
+            "detail": "Match: equal after standardisation"
+          }
+        },
+        {
+          "label": "warning",
+          "given": "Holder 'Panels Prueba'",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "Close match (0.963): warning, sent to review"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Holder 'Jordi Exemple'",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "No match (0.222): error"
+          }
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "C-13",
+      "rules": [
+        "V13"
+      ],
+      "purpose": "VIES status for partners registered outside Spain (as of 27 Nov 2026)",
+      "variants": [
+        {
+          "label": "fail",
+          "given": "PT customer BP-900408, NIPC 514503726 valid (V01 passes), VIES status not_registered",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "Cannot be invoiced without VAT as an intra-EU sale"
+          }
+        },
+        {
+          "label": "pass",
+          "given": "FR customer, SIREN 881400212, VIES valid, checked 2 Apr 2026",
+          "input": {},
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "FR customer, VIES valid, checked 1 Sep 2025",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "Checked more than 12 months ago"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "PT approved supplier, VIES valid on 1 Mar 2026, tax ID corrected on 15 Jul 2026",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "Tax ID changed after the last check"
+          }
+        },
+        {
+          "label": "n/a",
+          "given": "ES customer (NIF B27164532)",
+          "input": {},
+          "expected": {
+            "outcome": "not_applicable",
+            "detail": "Domestic: VIES not needed"
+          }
+        },
+        {
+          "label": "n/a",
+          "given": "FR prospect",
+          "input": {},
+          "expected": {
+            "outcome": "not_applicable",
+            "detail": "Rule applies to customers and approved suppliers"
+          }
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "C-14",
+      "rules": [
+        "T06"
+      ],
+      "purpose": "GDPR retention of prospect contacts (as of 27 Nov 2026)",
+      "variants": [
+        {
+          "label": "fail",
+          "given": "Contact of a prospect, last contact 1 Oct 2023",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "T06 warning: more than 3 years; anonymised"
+          }
+        },
+        {
+          "label": "pass",
+          "given": "Contact of a prospect, last contact 15 Jan 2024",
+          "input": {},
+          "expected": {
+            "outcome": "pass",
+            "detail": "2 years 10 months"
+          }
+        },
+        {
+          "label": "n/a",
+          "given": "Contact of a customer, last contact 2022",
+          "input": {},
+          "expected": {
+            "outcome": "not_applicable",
+            "detail": "Customer contacts are kept for the relationship plus 3 years"
+          }
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "C-15",
+      "rules": [
+        "U04"
+      ],
+      "purpose": "A suppressed person cannot come back through a source",
+      "variants": [
+        {
+          "label": "fail",
+          "given": "Contact erased on request RQ-990601 (hash of ana.test@client-a.example on the suppression list); the CRM delta extract contains 'Ana.Test@Client-A.example'",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "U04 error: compared case-insensitively by hash; the contact is not loaded and the DPO is told"
+          }
+        },
+        {
+          "label": "pass",
+          "given": "CRM delta extract contains luis.test@client-a.example (not suppressed)",
+          "input": {},
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "C-16",
+      "rules": [
+        "V12"
+      ],
+      "purpose": "An approved supplier needs a physical address",
+      "variants": [
+        {
+          "label": "fail",
+          "given": "Registered address 'Apartado de Correos 1234, 28080 Madrid'",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "PO box only"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Registered address 'BP 45, 69002 Lyon'",
+          "input": {},
+          "expected": {
+            "outcome": "fail",
+            "detail": "French PO box (boîte postale)"
+          }
+        },
+        {
+          "label": "pass",
+          "given": "Registered address 'Calle Prueba 5, 28001 Madrid'",
+          "input": {},
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "n/a",
+          "given": "Requested supplier with a PO box",
+          "input": {},
+          "expected": {
+            "outcome": "not_applicable",
+            "detail": "Rule applies to approved suppliers"
+          }
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "C-17",
+      "rules": [
+        "U02",
+        "M1"
+      ],
+      "purpose": "A merged-away record comes back from the source",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "After M-01 (C-300101 and C-300102 linked to one partner), the CRM delta extract sends C-300102 version 2",
+          "input": {},
+          "expected": {
+            "outcome": "pass",
+            "detail": "Linked to the same partner through the cross-reference: no new partner, no suggestion"
+          }
+        },
+        {
+          "label": "pass",
+          "given": "Sales creates a new CRM account C-399999 'Mercats Test SL' with NIF B27164532",
+          "input": {},
+          "expected": {
+            "outcome": "auto_link",
+            "detail": "M1 links it to the same partner; it counts as a CRM duplicate in KPI03 and is reported to the CRM owner"
+          }
+        }
+      ],
+      "note": ""
+    }
+  ]
+}

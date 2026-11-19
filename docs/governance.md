@@ -41,7 +41,7 @@ Required data grows with the stage, so Sales is not asked for a tax ID before th
 | Supplier | Requested | Someone wants to buy from them | Name, country, category, internal contact |
 | Supplier | Approved | May be ordered from and paid | Everything needed to pay: legal name, valid tax ID, registered address, payment terms, verified bank details |
 | Both | Inactive | No active contract | Unchanged. Kept for history |
-| Both | Blocked | Must not be used: duplicate, credit, payment or compliance block | Block reason and who decided |
+| Both | Blocked | Must not be used: duplicate, credit, payment, compliance, insolvency or absorbed (after a merger) | Block reason and who decided |
 
 ## Decision rights
 
@@ -56,6 +56,9 @@ Above every row: nobody approves a request they raised.
 | Override a customer tier | Sales | Steward | Sales Director |
 | Change a high-risk field (legal name, tax ID, addresses, payment terms, bill-to) | Finance, Sales or Operations | Steward | Finance Controller |
 | Change supplier bank details | Finance (payables) | Steward, after independent verification with the supplier | Finance Controller |
+| Corporate event: rename, legal form change, merger or absorption | Finance, Sales or Operations | Steward, with the registry extract | Finance Controller |
+| Reactivate a dormant supplier | Operations or any budget holder | Steward, after verifying the bank details again | Finance Controller |
+| Clear an employee–supplier match (K10) | System | Steward | Finance Controller |
 | Merge: exact match on tax ID | System | Automatic | Rules. Logged and reversible |
 | Merge: probable match | System or any requester | Steward | Steward. Data owner if the records have different account owners, or legal or bank data would change |
 | Undo a merge | Any requester | Steward | Data owner |
