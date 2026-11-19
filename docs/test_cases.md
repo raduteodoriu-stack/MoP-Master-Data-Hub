@@ -10,7 +10,7 @@ engine tests (MDH-005 onwards) check the engine against these outcomes.
 | Q | Q-01 to Q-30 | The 30 quality rules of v1.2 (C, V, U, K, T); the nine new v1.3 rules are in batch C | Reviewed |
 | M | M-01 to M-18 | Matching rules M1 to M6 and the four duplicate patterns | Reviewed |
 | C | C-01 to C-17 | Company lifecycle, fraud and privacy (rules v1.3) | Reviewed |
-| S | S-01 to S-07 | Survivorship | To do |
+| S | S-01 to S-09 | Survivorship | Reviewed |
 | T | T-01 to T-09 | Customer tier | To do |
 | H | H-01 to H-05 | Hierarchy | To do |
 | R | R-01 to R-18 | Requests | To do |
@@ -453,3 +453,31 @@ These cases come from the research on what companies most often run into after a
 |  |  | n/a | Requested supplier with a PO box | – not applicable | Rule applies to approved suppliers |
 | C-17 A merged-away record comes back from the source | U02, M1 | pass | After M-01 (C-300101 and C-300102 linked to one partner), the CRM delta extract sends C-300102 version 2 | ✅ pass | Linked to the same partner through the cross-reference: no new partner, no suggestion |
 |  |  | pass | Sales creates a new CRM account C-399999 'Mercats Test SL' with NIF B27164532 | 🔗 linked | M1 links it to the same partner; it counts as a CRM duplicate in KPI03 and is reported to the CRM owner |
+
+## Batch S: Survivorship (S-01 to S-09)
+
+**Status:** reviewed, no corrections. Rules: `MDH-RULES-v1.4` (clarifications G6–G8 released). All values are synthetic.
+
+The survivorship steps, in order: **1** a value set by an approved request wins until a later approved request changes it; **2** otherwise the winning source for the field group (ERP for legal identity, addresses and payment data; CRM for commercial customer data); **3** if that source has no valid value, the most recently changed valid value from another source; **4** an empty value never replaces a filled one, and an invalid value never replaces a valid one.
+
+### Gaps found while writing this batch (fixed in rules v1.4)
+
+| # | Gap in v1.3 | Clarification in v1.4 | Cases |
+|---|---|---|---|
+| G6 | "Most recently changed" does not say which time is used | The change time stated by the source (`source_updated_at`); if the source gives none, the time the hub received the record | S-03 |
+| G7 | Two sources changed at the same moment with different values | A fixed order breaks the tie: ERP, CRM, procurement spreadsheet, support desk | S-09 |
+| G8 | Step 3 would copy an IBAN typed into the procurement spreadsheet onto the golden record, without any verification | Step 3 never applies to bank details: they come only from the ERP or from a verified, approved `change_bank_details` request | S-07, S-08 |
+
+Each expected result below was also computed by a small reference implementation of these steps; all nine agree.
+
+| Case | Field (winning source) | Golden before | Source values | Expected | Step | Why |
+|---|---|---|---|---|---|---|
+| S-01 Step 2: the winning source decides (legal identity → ERP) | `legal_name` (erp) | (none) | erp E-500101 v1: Mercats Test S.L. · 2026-11-02 08:00<br>crm C-500101 v1: Mercats Test SL Barcelona · 2026-11-05 10:00 | **Mercats Test S.L.** | 2 | The ERP owns legal identity; the CRM value is newer but does not count. The CRM disagreeing is a K06 warning to the CRM owner |
+| S-02 Step 2 for commercial data (customer commercial → CRM) | `industry_code` (crm) | (none) | crm C-500201 v1: market_research · 2026-10-20 09:00<br>erp E-500201 v1: other · 2026-11-02 08:00 | **market_research** | 2 | Sales owns commercial data, so the CRM wins even though the ERP value is newer |
+| S-03 Step 3: the winning source is empty, so the most recently changed valid value wins | `web_domain` (crm) | (none) | crm C-500301 v1: (empty) · 2026-11-02 08:00<br>erp E-500301 v1: mercatstest.example · 2025-03-01 10:00<br>support S-500301 v1: mercats-test.example · 2026-11-03 12:00 | **mercats-test.example** | 3 | CRM has no domain; the support desk changed it most recently (source change time, G6) |
+| S-04 Rule 4: an empty value never replaces a filled one | `invoice_email` (erp) | factures@mercats-test.example | erp E-500401 v2: (empty) · 2026-11-16 08:00 | **factures@mercats-test.example** | 4 | The ERP's version 2 has the field empty: the golden value is kept, no history row is written, and K06 does not fire (it compares values that are present) |
+| S-05 Rule 4: an invalid value never replaces a valid one | `registered_address.postal_code` (erp) | 08001 | erp E-500501 v2: 60123 (invalid) · 2026-11-16 08:00<br>crm C-500501 v1: 08001 · 2026-10-01 09:00 | **08001** | 3 | The ERP's new postal code fails V04, so it counts as no value; the CRM's valid value is used (step 3), and V04 fails on the ERP record for its owner to fix |
+| S-06 Step 1: an approved request beats a later source change | `payment_terms` (erp) | NET30 | erp E-500601 v2: NET30 · 2026-11-16 08:00<br>approved request RQ-500601: NET45 | **NET45** | 1 | Request RQ-500601 (change_high_risk, approved 10 Nov by the Finance Controller) set NET45. The ERP extract of 16 Nov still says NET30: the golden value stays NET45 and K06 tells the ERP owner to update it |
+| S-07 Customer and supplier accounts with different bank details (G8) | `iban` (erp) | (none) | erp E-500701 v1: ES3899990004000111222333 · 2026-11-02 08:00<br>procurement_sheet P-500701 v1: ES4099990005000444555666 · 2026-11-04 15:00 | **ES3899990004000111222333** | 2 | After M1 links the ERP account and the spreadsheet row (same SIREN), the ERP's IBAN wins; the spreadsheet's different IBAN is a K06 warning and can only be changed through a verified change_bank_details request |
+| S-08 Bank details are never filled from a non-winning source (G8) | `iban` (erp) | (none) | erp E-500801 v1: (empty) · 2026-11-02 08:00<br>procurement_sheet P-500801 v1: ES4299990006000777888999 · 2026-11-04 15:00 | **(none)** | 4 | The ERP has no IBAN and step 3 does not apply to bank details: the supplier stays without bank details until a verified change_bank_details request (C01 fails for an approved supplier) |
+| S-09 A tie in step 3 is broken by a fixed source order (G7) | `registered_address.street` (erp) | (none) | erp E-500901 v1: (empty) · 2026-11-02 08:00<br>crm C-500901 v1: Carrer de Prova 1 · 2026-11-05 10:00<br>support S-500901 v1: Carrer Prova, 1 · 2026-11-05 10:00 | **Carrer de Prova 1** | 3 | CRM and support changed it at the same moment: the order ERP, CRM, procurement spreadsheet, support desk picks the CRM |

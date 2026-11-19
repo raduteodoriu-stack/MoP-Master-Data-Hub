@@ -1,0 +1,324 @@
+{
+  "batch": "S",
+  "title": "Survivorship",
+  "rules_version": "MDH-RULES-v1.4",
+  "status": "reviewed",
+  "survivorship": [
+    "1 approved request wins until a later approved request",
+    "2 the winning source for the field group",
+    "3 otherwise the most recently changed valid value from another source",
+    "4 an empty value never replaces a filled one; an invalid value never replaces a valid one"
+  ],
+  "cases": [
+    {
+      "id": "S-01",
+      "purpose": "Step 2: the winning source decides (legal identity → ERP)",
+      "field": "legal_name",
+      "field_group": "legal_identity",
+      "winning_source": "erp",
+      "golden_before": null,
+      "approved_request": null,
+      "source_values": [
+        {
+          "system": "erp",
+          "source_key": "E-500101",
+          "version": 1,
+          "value": "Mercats Test S.L.",
+          "valid": true,
+          "updated_at": "2026-11-02T08:00:00+01:00"
+        },
+        {
+          "system": "crm",
+          "source_key": "C-500101",
+          "version": 1,
+          "value": "Mercats Test SL Barcelona",
+          "valid": true,
+          "updated_at": "2026-11-05T10:00:00+01:00"
+        }
+      ],
+      "expected": {
+        "golden_value": "Mercats Test S.L.",
+        "survivorship_step": 2,
+        "lineage": "erp"
+      },
+      "why": "The ERP owns legal identity; the CRM value is newer but does not count. The CRM disagreeing is a K06 warning to the CRM owner",
+      "note": ""
+    },
+    {
+      "id": "S-02",
+      "purpose": "Step 2 for commercial data (customer commercial → CRM)",
+      "field": "industry_code",
+      "field_group": "customer_commercial",
+      "winning_source": "crm",
+      "golden_before": null,
+      "approved_request": null,
+      "source_values": [
+        {
+          "system": "crm",
+          "source_key": "C-500201",
+          "version": 1,
+          "value": "market_research",
+          "valid": true,
+          "updated_at": "2026-10-20T09:00:00+02:00"
+        },
+        {
+          "system": "erp",
+          "source_key": "E-500201",
+          "version": 1,
+          "value": "other",
+          "valid": true,
+          "updated_at": "2026-11-02T08:00:00+01:00"
+        }
+      ],
+      "expected": {
+        "golden_value": "market_research",
+        "survivorship_step": 2,
+        "lineage": "crm"
+      },
+      "why": "Sales owns commercial data, so the CRM wins even though the ERP value is newer",
+      "note": ""
+    },
+    {
+      "id": "S-03",
+      "purpose": "Step 3: the winning source is empty, so the most recently changed valid value wins",
+      "field": "web_domain",
+      "field_group": "customer_commercial",
+      "winning_source": "crm",
+      "golden_before": null,
+      "approved_request": null,
+      "source_values": [
+        {
+          "system": "crm",
+          "source_key": "C-500301",
+          "version": 1,
+          "value": null,
+          "valid": true,
+          "updated_at": "2026-11-02T08:00:00+01:00"
+        },
+        {
+          "system": "erp",
+          "source_key": "E-500301",
+          "version": 1,
+          "value": "mercatstest.example",
+          "valid": true,
+          "updated_at": "2025-03-01T10:00:00+01:00"
+        },
+        {
+          "system": "support",
+          "source_key": "S-500301",
+          "version": 1,
+          "value": "mercats-test.example",
+          "valid": true,
+          "updated_at": "2026-11-03T12:00:00+01:00"
+        }
+      ],
+      "expected": {
+        "golden_value": "mercats-test.example",
+        "survivorship_step": 3,
+        "lineage": "support"
+      },
+      "why": "CRM has no domain; the support desk changed it most recently (source change time, G6)",
+      "note": ""
+    },
+    {
+      "id": "S-04",
+      "purpose": "Rule 4: an empty value never replaces a filled one",
+      "field": "invoice_email",
+      "field_group": "customer_payment",
+      "winning_source": "erp",
+      "golden_before": "factures@mercats-test.example",
+      "approved_request": null,
+      "source_values": [
+        {
+          "system": "erp",
+          "source_key": "E-500401",
+          "version": 2,
+          "value": "",
+          "valid": true,
+          "updated_at": "2026-11-16T08:00:00+01:00"
+        }
+      ],
+      "expected": {
+        "golden_value": "factures@mercats-test.example",
+        "survivorship_step": 4,
+        "lineage": "kept"
+      },
+      "why": "The ERP's version 2 has the field empty: the golden value is kept, no history row is written, and K06 does not fire (it compares values that are present)",
+      "note": ""
+    },
+    {
+      "id": "S-05",
+      "purpose": "Rule 4: an invalid value never replaces a valid one",
+      "field": "registered_address.postal_code",
+      "field_group": "addresses",
+      "winning_source": "erp",
+      "golden_before": "08001",
+      "approved_request": null,
+      "source_values": [
+        {
+          "system": "erp",
+          "source_key": "E-500501",
+          "version": 2,
+          "value": "60123",
+          "valid": false,
+          "updated_at": "2026-11-16T08:00:00+01:00"
+        },
+        {
+          "system": "crm",
+          "source_key": "C-500501",
+          "version": 1,
+          "value": "08001",
+          "valid": true,
+          "updated_at": "2026-10-01T09:00:00+02:00"
+        }
+      ],
+      "expected": {
+        "golden_value": "08001",
+        "survivorship_step": 3,
+        "lineage": "crm"
+      },
+      "why": "The ERP's new postal code fails V04, so it counts as no value; the CRM's valid value is used (step 3), and V04 fails on the ERP record for its owner to fix",
+      "note": ""
+    },
+    {
+      "id": "S-06",
+      "purpose": "Step 1: an approved request beats a later source change",
+      "field": "payment_terms",
+      "field_group": "customer_payment",
+      "winning_source": "erp",
+      "golden_before": "NET30",
+      "approved_request": {
+        "id": "RQ-500601",
+        "value": "NET45",
+        "approved_at": "2026-11-10T12:00:00+01:00"
+      },
+      "source_values": [
+        {
+          "system": "erp",
+          "source_key": "E-500601",
+          "version": 2,
+          "value": "NET30",
+          "valid": true,
+          "updated_at": "2026-11-16T08:00:00+01:00"
+        }
+      ],
+      "expected": {
+        "golden_value": "NET45",
+        "survivorship_step": 1,
+        "lineage": "request RQ-500601"
+      },
+      "why": "Request RQ-500601 (change_high_risk, approved 10 Nov by the Finance Controller) set NET45. The ERP extract of 16 Nov still says NET30: the golden value stays NET45 and K06 tells the ERP owner to update it",
+      "note": ""
+    },
+    {
+      "id": "S-07",
+      "purpose": "Customer and supplier accounts with different bank details (G8)",
+      "field": "iban",
+      "field_group": "supplier_payment",
+      "winning_source": "erp",
+      "golden_before": null,
+      "approved_request": null,
+      "source_values": [
+        {
+          "system": "erp",
+          "source_key": "E-500701",
+          "version": 1,
+          "value": "ES3899990004000111222333",
+          "valid": true,
+          "updated_at": "2026-11-02T08:00:00+01:00"
+        },
+        {
+          "system": "procurement_sheet",
+          "source_key": "P-500701",
+          "version": 1,
+          "value": "ES4099990005000444555666",
+          "valid": true,
+          "updated_at": "2026-11-04T15:00:00+01:00"
+        }
+      ],
+      "expected": {
+        "golden_value": "ES3899990004000111222333",
+        "survivorship_step": 2,
+        "lineage": "erp"
+      },
+      "why": "After M1 links the ERP account and the spreadsheet row (same SIREN), the ERP's IBAN wins; the spreadsheet's different IBAN is a K06 warning and can only be changed through a verified change_bank_details request",
+      "note": ""
+    },
+    {
+      "id": "S-08",
+      "purpose": "Bank details are never filled from a non-winning source (G8)",
+      "field": "iban",
+      "field_group": "supplier_payment",
+      "winning_source": "erp",
+      "golden_before": null,
+      "approved_request": null,
+      "source_values": [
+        {
+          "system": "erp",
+          "source_key": "E-500801",
+          "version": 1,
+          "value": null,
+          "valid": true,
+          "updated_at": "2026-11-02T08:00:00+01:00"
+        },
+        {
+          "system": "procurement_sheet",
+          "source_key": "P-500801",
+          "version": 1,
+          "value": "ES4299990006000777888999",
+          "valid": true,
+          "updated_at": "2026-11-04T15:00:00+01:00"
+        }
+      ],
+      "expected": {
+        "golden_value": null,
+        "survivorship_step": 4,
+        "lineage": "kept"
+      },
+      "why": "The ERP has no IBAN and step 3 does not apply to bank details: the supplier stays without bank details until a verified change_bank_details request (C01 fails for an approved supplier)",
+      "note": ""
+    },
+    {
+      "id": "S-09",
+      "purpose": "A tie in step 3 is broken by a fixed source order (G7)",
+      "field": "registered_address.street",
+      "field_group": "addresses",
+      "winning_source": "erp",
+      "golden_before": null,
+      "approved_request": null,
+      "source_values": [
+        {
+          "system": "erp",
+          "source_key": "E-500901",
+          "version": 1,
+          "value": null,
+          "valid": true,
+          "updated_at": "2026-11-02T08:00:00+01:00"
+        },
+        {
+          "system": "crm",
+          "source_key": "C-500901",
+          "version": 1,
+          "value": "Carrer de Prova 1",
+          "valid": true,
+          "updated_at": "2026-11-05T10:00:00+01:00"
+        },
+        {
+          "system": "support",
+          "source_key": "S-500901",
+          "version": 1,
+          "value": "Carrer Prova, 1",
+          "valid": true,
+          "updated_at": "2026-11-05T10:00:00+01:00"
+        }
+      ],
+      "expected": {
+        "golden_value": "Carrer de Prova 1",
+        "survivorship_step": 3,
+        "lineage": "crm"
+      },
+      "why": "CRM and support changed it at the same moment: the order ERP, CRM, procurement spreadsheet, support desk picks the CRM",
+      "note": ""
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 Tables, relationships, history and integrity rules of the MoP Master Data Hub database.
 Every column is described in [data_dictionary.md](data_dictionary.md). The rules this database
 supports are in [data_standards.md](data_standards.md), [quality_rules.md](quality_rules.md)
-and [`rules/MDH-RULES-v1.3.json`](../rules/MDH-RULES-v1.3.json).
+and [`rules/MDH-RULES-v1.4.json`](../rules/MDH-RULES-v1.4.json).
 
 **Status:** implemented and tested. `SQL/001_create_schema.sql` creates the 25 tables and the
 rules below, `SQL/002_working_minutes.sql` adds the working-time function, `SQL/003_rules_v1_2.sql`
