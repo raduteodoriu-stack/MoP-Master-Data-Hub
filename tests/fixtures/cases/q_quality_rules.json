@@ -1,0 +1,1208 @@
+{
+  "batch": "Q",
+  "title": "Quality rules",
+  "rules_version": "MDH-RULES-v1.2",
+  "as_of": "2026-11-27T18:00:00+01:00",
+  "status": "reviewed",
+  "note": "Synthetic data only. Tax IDs are random numbers with valid (or deliberately wrong) check digits; IBANs use the invented bank code 9999/99999.",
+  "cases": [
+    {
+      "id": "Q-01",
+      "rule": "C01",
+      "subject": "partner",
+      "purpose": "Mandatory fields depend on the stage",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Customer with every field the customer stage needs",
+          "input": {
+            "bp_id": "BP-900001",
+            "legal_name": "Mercats Test S.L.",
+            "legal_form": "S.L.",
+            "country": "ES",
+            "tax_id": "B27164532",
+            "web_domain": "mercats-test.example",
+            "registered_address": {
+              "street": "Carrer de Prova 1",
+              "postal_code": "08001",
+              "city": "Barcelona",
+              "country": "ES"
+            },
+            "customer_role": {
+              "stage": "customer",
+              "account_owner_id": "AE-ES-01",
+              "industry_code": "market_research",
+              "employee_band": "50-249",
+              "billing_address": {
+                "street": "Carrer de Prova 1",
+                "postal_code": "08001",
+                "city": "Barcelona",
+                "country": "ES"
+              },
+              "bill_to_bp_id": "BP-900001",
+              "invoice_email": "factures@mercats-test.example",
+              "payment_terms": "NET30"
+            },
+            "contacts": [
+              {
+                "first_name": "Laia",
+                "last_name": "Prova",
+                "work_email": "laia.prova@mercats-test.example",
+                "role_title": "Head of Insights"
+              }
+            ]
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": "All 15 customer-stage fields filled"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Same customer without billing address and payment terms",
+          "input": {
+            "bp_id": "BP-900001",
+            "customer_role": {
+              "stage": "customer",
+              "billing_address": null,
+              "payment_terms": null
+            },
+            "_note": "other fields as in pass"
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Missing: billing_address, payment_terms"
+          }
+        },
+        {
+          "label": "pass",
+          "given": "Same record at prospect stage (billing data not yet required)",
+          "input": {
+            "bp_id": "BP-900001",
+            "customer_role": {
+              "stage": "prospect",
+              "billing_address": null,
+              "payment_terms": null
+            }
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": "Prospect needs only name, country, web domain, account owner"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-02",
+      "rule": "C02",
+      "subject": "partner",
+      "purpose": "A customer's industry and employee band are known",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Customer: market_research, 50-249",
+          "input": {
+            "customer_role": {
+              "stage": "customer",
+              "industry_code": "market_research",
+              "employee_band": "50-249"
+            }
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Customer: employee band unknown",
+          "input": {
+            "customer_role": {
+              "stage": "customer",
+              "industry_code": "market_research",
+              "employee_band": "unknown"
+            }
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "employee_band is unknown (tier is unknown too)"
+          }
+        },
+        {
+          "label": "n/a",
+          "given": "Prospect with unknown band",
+          "input": {
+            "customer_role": {
+              "stage": "prospect",
+              "employee_band": "unknown"
+            }
+          },
+          "expected": {
+            "outcome": "not_applicable",
+            "detail": "Rule applies to customers only"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-03",
+      "rule": "C03",
+      "subject": "partner",
+      "purpose": "Customers and approved suppliers have a contact with a role",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Approved supplier with contact 'Account Manager'",
+          "input": {
+            "supplier_role": {
+              "stage": "approved"
+            },
+            "contacts": [
+              {
+                "work_email": "comercial@paneles-prueba.example",
+                "role_title": "Account Manager"
+              }
+            ]
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Approved supplier whose only contact has no role",
+          "input": {
+            "supplier_role": {
+              "stage": "approved"
+            },
+            "contacts": [
+              {
+                "work_email": "info@paneles-prueba.example",
+                "role_title": null
+              }
+            ]
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "No contact with a role"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-04",
+      "rule": "V01",
+      "subject": "partner",
+      "purpose": "Tax ID check digit per country",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "ES NIF B27164532",
+          "input": {
+            "country": "ES",
+            "tax_id": "B27164532"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": "Control digit correct"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "ES NIF B27164535 (one digit off)",
+          "input": {
+            "country": "ES",
+            "tax_id": "B27164535"
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Control digit should be 2"
+          }
+        },
+        {
+          "label": "pass",
+          "given": "PT NIPC 517349060",
+          "input": {
+            "country": "PT",
+            "tax_id": "517349060"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": "Mod-11 check digit correct"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "FR SIREN 812436050",
+          "input": {
+            "country": "FR",
+            "tax_id": "812436050"
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Luhn check fails"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-05",
+      "rule": "V02",
+      "subject": "source_record",
+      "purpose": "A VAT number in a source agrees with the tax ID",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "ERP: NIF B27164532, VAT ESB27164532",
+          "input": {
+            "system": "erp",
+            "tax_id": "B27164532",
+            "vat_number": "ESB27164532",
+            "country": "ES"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "ERP: SIREN 812436053, VAT FR00812436053",
+          "input": {
+            "system": "erp",
+            "tax_id": "812436053",
+            "vat_number": "FR00812436053",
+            "country": "FR"
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Expected FR35812436053"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-06",
+      "rule": "V03",
+      "subject": "source_record",
+      "purpose": "Country is an ISO code after standardisation",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Support desk: 'Portugal' (standardised to PT)",
+          "input": {
+            "system": "support",
+            "country": "Portugal"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": "Standardised to PT"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Support desk: 'UK' (the ISO code is GB)",
+          "input": {
+            "system": "support",
+            "country": "UK"
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Not an ISO 3166 code"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-07",
+      "rule": "V04",
+      "subject": "partner",
+      "purpose": "Postal code fits the country",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "FR address 69002 Lyon",
+          "input": {
+            "address": {
+              "postal_code": "69002",
+              "city": "Lyon",
+              "country": "FR"
+            }
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "ES address 60123 (no province 60)",
+          "input": {
+            "address": {
+              "postal_code": "60123",
+              "city": "Madrid",
+              "country": "ES"
+            }
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Spanish postal codes start 01-52"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-08",
+      "rule": "V05",
+      "subject": "source_record",
+      "purpose": "Web domain is clean and not a free email domain",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "CRM: 'https://www.mercats-test.example/ca' (standardised to mercats-test.example)",
+          "input": {
+            "system": "crm",
+            "web_domain": "https://www.mercats-test.example/ca"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": "Standardised to mercats-test.example"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "CRM: 'gmail.com' typed as company website",
+          "input": {
+            "system": "crm",
+            "web_domain": "gmail.com"
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Free email domain"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-09",
+      "rule": "V06",
+      "subject": "partner",
+      "purpose": "Email addresses have a valid format",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Invoice email factures@mercats-test.example",
+          "input": {
+            "customer_role": {
+              "invoice_email": "factures@mercats-test.example"
+            }
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Invoice email facturas@@cliente-prueba.example",
+          "input": {
+            "customer_role": {
+              "invoice_email": "facturas@@cliente-prueba.example"
+            }
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Invalid email"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-10",
+      "rule": "V07",
+      "subject": "source_record",
+      "purpose": "Phone in international format after standardisation",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "PT record: '21 000 0000' (standardised to +351210000000)",
+          "input": {
+            "system": "crm",
+            "country": "PT",
+            "phone": "21 000 0000"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": "Standardised with the country prefix"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "ES record: '12345'",
+          "input": {
+            "system": "crm",
+            "country": "ES",
+            "phone": "12345"
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Too short to standardise"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-11",
+      "rule": "V08",
+      "subject": "source_record",
+      "purpose": "Payment terms in the allowed list",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Procurement sheet: '45 días' (standardised to NET45)",
+          "input": {
+            "system": "procurement_sheet",
+            "payment_terms": "45 días"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": "Standardised to NET45"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "ERP: 'NET90'",
+          "input": {
+            "system": "erp",
+            "payment_terms": "NET90"
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Not in NET15/30/45/60; needs the Finance Controller"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-12",
+      "rule": "V09",
+      "subject": "partner",
+      "purpose": "IBAN length and check digits",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "FR supplier IBAN FR8499999000100001234567821",
+          "input": {
+            "bank_account": {
+              "iban": "FR8499999000100001234567821"
+            }
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "ES supplier IBAN ES1299990001000123456789",
+          "input": {
+            "bank_account": {
+              "iban": "ES1299990001000123456789"
+            }
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Check digits should be 98"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-13",
+      "rule": "V10",
+      "subject": "partner",
+      "purpose": "Legal form agrees with the end of the legal name",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "PT 'Opiniões Teste Lda.', legal form Lda.",
+          "input": {
+            "legal_name": "Opiniões Teste Lda.",
+            "legal_form": "Lda.",
+            "country": "PT"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "ES 'Mercats Test S.L.', legal form S.A.",
+          "input": {
+            "legal_name": "Mercats Test S.L.",
+            "legal_form": "S.A.",
+            "country": "ES"
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Name ends S.L., legal form S.A."
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-14",
+      "rule": "V11",
+      "subject": "partner",
+      "purpose": "Legal name is not a placeholder",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Legal name 'Études Essai SAS'",
+          "input": {
+            "legal_name": "Études Essai SAS"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Legal name 'TBC'",
+          "input": {
+            "legal_name": "TBC"
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Placeholder"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-15",
+      "rule": "U01",
+      "subject": "request",
+      "purpose": "A tax ID belongs to one active partner",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Create-customer request with a new NIF B31488208",
+          "input": {
+            "request_type": "create_customer",
+            "proposed": {
+              "country": "ES",
+              "tax_id": "B31488208"
+            }
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Create-customer request with NIF B27164532 (already BP-900001)",
+          "input": {
+            "request_type": "create_customer",
+            "proposed": {
+              "country": "ES",
+              "tax_id": "B27164532"
+            }
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Tax ID already belongs to BP-900001: request cannot be submitted"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-16",
+      "rule": "U02",
+      "subject": "source_record",
+      "purpose": "Every source record is linked to exactly one partner",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "CRM C-100001 linked to BP-900001",
+          "input": {
+            "system": "crm",
+            "source_key": "C-100001",
+            "current_link": "BP-900001"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Support S-200001 with no link (waiting for a steward decision)",
+          "input": {
+            "system": "support",
+            "source_key": "S-200001",
+            "current_link": null
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Unlinked; open suggestion in the steward queue"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-17",
+      "rule": "U03",
+      "subject": "partner",
+      "purpose": "An IBAN belongs to one supplier, unless both are in the same group",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Group mother and its subsidiary share ES5899990002000987654321 (cash pooling)",
+          "input": {
+            "suppliers": [
+              {
+                "bp_id": "BP-900005",
+                "iban": "ES5899990002000987654321"
+              },
+              {
+                "bp_id": "BP-900006",
+                "iban": "ES5899990002000987654321",
+                "parent": "BP-900005"
+              }
+            ]
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": "Same group"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Two unrelated suppliers share ES9899990001000123456789",
+          "input": {
+            "suppliers": [
+              {
+                "bp_id": "BP-900004",
+                "iban": "ES9899990001000123456789"
+              },
+              {
+                "bp_id": "BP-900007",
+                "iban": "ES9899990001000123456789"
+              }
+            ]
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Sent to the steward (also M6 bank-risk review)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-18",
+      "rule": "K01",
+      "subject": "source_record",
+      "purpose": "The tax ID's country is the country of registration",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "ERP: country PT, NIPC 517349060",
+          "input": {
+            "system": "erp",
+            "country": "PT",
+            "tax_id": "517349060"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "ERP: country PT, tax ID B27164532 (a Spanish NIF)",
+          "input": {
+            "system": "erp",
+            "country": "PT",
+            "tax_id": "B27164532"
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Tax ID format is Spanish"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-19",
+      "rule": "K02",
+      "subject": "partner",
+      "purpose": "Bank account holder matches the legal name",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Holder 'PANELES PRUEBA SL', legal name 'Paneles Prueba S.L.'",
+          "input": {
+            "legal_name": "Paneles Prueba S.L.",
+            "bank_account": {
+              "account_holder_name": "PANELES PRUEBA SL"
+            }
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": "Equal after standardisation"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Holder 'Jordi Exemple' (a person)",
+          "input": {
+            "legal_name": "Paneles Prueba S.L.",
+            "bank_account": {
+              "account_holder_name": "Jordi Exemple"
+            }
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Sent to the steward"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-20",
+      "rule": "K03",
+      "subject": "partner",
+      "purpose": "IBAN country is the country of registration, or an exception is recorded",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "FR supplier with ES IBAN, exception 'Spanish branch account' recorded",
+          "input": {
+            "country": "FR",
+            "bank_account": {
+              "iban": "ES5899990002000987654321"
+            },
+            "exception": "Spanish branch account"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": "Exception recorded"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "FR supplier with PT IBAN, no exception",
+          "input": {
+            "country": "FR",
+            "bank_account": {
+              "iban": "PT10999900010001234567805"
+            }
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "IBAN country PT, registration FR"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-21",
+      "rule": "K04",
+      "subject": "partner",
+      "purpose": "The bill-to party exists, is active and not blocked",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Bill-to is the customer itself",
+          "input": {
+            "bp_id": "BP-900001",
+            "customer_role": {
+              "bill_to_bp_id": "BP-900001"
+            }
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Bill-to BP-900008 has a credit block",
+          "input": {
+            "customer_role": {
+              "bill_to_bp_id": "BP-900008"
+            },
+            "bill_to": {
+              "bp_id": "BP-900008",
+              "block_reason": "credit"
+            }
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Bill-to party blocked"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-22",
+      "rule": "K05",
+      "subject": "partner",
+      "purpose": "The parent exists and is not blocked",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Subsidiary under active mother BP-900005",
+          "input": {
+            "parent": {
+              "bp_id": "BP-900005",
+              "blocked": false
+            }
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Subsidiary under BP-900009, which has a compliance block",
+          "input": {
+            "parent": {
+              "bp_id": "BP-900009",
+              "block_reason": "compliance"
+            }
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Parent blocked (loops and depth are refused by the database, I12)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-23",
+      "rule": "K06",
+      "subject": "partner",
+      "purpose": "Sources agree with the golden record",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "CRM 'MERCATS TEST SL' vs golden 'Mercats Test S.L.'",
+          "input": {
+            "field": "legal_name",
+            "golden": "Mercats Test S.L.",
+            "sources": {
+              "crm": "MERCATS TEST SL",
+              "erp": "Mercats Test, S.L."
+            }
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": "Equal after standardisation"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "CRM registered street 'Carrer Antic 3' vs golden 'Carrer de Prova 1'",
+          "input": {
+            "field": "registered_address",
+            "golden": "Carrer de Prova 1, 08001",
+            "sources": {
+              "crm": "Carrer Antic 3, 08003",
+              "erp": "Carrer de Prova 1, 08001"
+            }
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "CRM disagrees; the CRM is reported to its owner"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-24",
+      "rule": "K07",
+      "subject": "request",
+      "purpose": "A block has a reason and an approver",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Block request: reason 'credit', approver Finance Controller",
+          "input": {
+            "request_type": "block_unblock",
+            "proposed": {
+              "block_reason": "credit"
+            },
+            "approver_role": "finance_controller"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Block request with no reason",
+          "input": {
+            "request_type": "block_unblock",
+            "proposed": {
+              "block_reason": null
+            }
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Request cannot be submitted (the database also refuses it, I11)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-25",
+      "rule": "K08",
+      "subject": "partner",
+      "purpose": "A contact's email domain is the partner's web domain",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "laia.prova@mercats-test.example on mercats-test.example",
+          "input": {
+            "web_domain": "mercats-test.example",
+            "contacts": [
+              {
+                "work_email": "laia.prova@mercats-test.example"
+              }
+            ]
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "laia.prova@gmail.com on mercats-test.example",
+          "input": {
+            "web_domain": "mercats-test.example",
+            "contacts": [
+              {
+                "work_email": "laia.prova@gmail.com"
+              }
+            ]
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Private email domain"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-26",
+      "rule": "K09",
+      "subject": "source_record",
+      "purpose": "A source record does not carry another partner's tax ID (rules v1.2)",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "CRM 'Ensayo Portugal Lda.' with its own NIPC 509812333, linked to BP-900006",
+          "input": {
+            "system": "crm",
+            "name": "Ensayo Portugal Lda.",
+            "tax_id": "509812333",
+            "current_link": "BP-900006"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "CRM 'Ensayo Portugal' carrying the mother's NIF A55204176, linked to BP-900006; the NIF belongs to BP-900005",
+          "input": {
+            "system": "crm",
+            "name": "Ensayo Portugal",
+            "tax_id": "A55204176",
+            "current_link": "BP-900006"
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Tax ID belongs to BP-900005: reported to the CRM owner"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-27",
+      "rule": "T01",
+      "subject": "partner",
+      "purpose": "Customers and approved suppliers reviewed in the last 12 months (as of 27 Nov 2026)",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Customer last reviewed 15 Mar 2026",
+          "input": {
+            "customer_role": {
+              "stage": "customer"
+            },
+            "last_reviewed_at": "2026-03-15"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Customer last reviewed 1 Oct 2025",
+          "input": {
+            "customer_role": {
+              "stage": "customer"
+            },
+            "last_reviewed_at": "2025-10-01"
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Almost 14 months"
+          }
+        },
+        {
+          "label": "n/a",
+          "given": "Prospect never reviewed",
+          "input": {
+            "customer_role": {
+              "stage": "prospect"
+            },
+            "last_reviewed_at": null
+          },
+          "expected": {
+            "outcome": "not_applicable",
+            "detail": "Rule applies to customers and approved suppliers"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-28",
+      "rule": "T02",
+      "subject": "partner",
+      "purpose": "Bank details verified after their last change and within 24 months",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Changed 4 May 2026, verified 5 May 2026",
+          "input": {
+            "bank_account": {
+              "valid_from": "2026-05-04",
+              "verified_at": "2026-05-05"
+            }
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": ""
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Changed 4 May 2026, last verified 10 Jan 2026",
+          "input": {
+            "bank_account": {
+              "valid_from": "2026-05-04",
+              "verified_at": "2026-01-10"
+            }
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Not verified since the change"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Unchanged since 2023, verified 1 Jun 2024",
+          "input": {
+            "bank_account": {
+              "valid_from": "2023-02-01",
+              "verified_at": "2024-06-01"
+            }
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "More than 24 months (almost 30)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-29",
+      "rule": "T03",
+      "subject": "source_record",
+      "purpose": "A source change reaches the hub within one working day (540 working minutes)",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "CRM change Mon 16 Nov 15:00, loaded Tue 17 Nov 09:30",
+          "input": {
+            "system": "crm",
+            "source_updated_at": "2026-11-16T15:00:00+01:00",
+            "received_at": "2026-11-17T09:30:00+01:00"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": "210 working minutes"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "CRM change Fri 13 Nov 17:00, loaded Tue 17 Nov 10:00",
+          "input": {
+            "system": "crm",
+            "source_updated_at": "2026-11-13T17:00:00+01:00",
+            "received_at": "2026-11-17T10:00:00+01:00"
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "660 working minutes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "Q-30",
+      "rule": "T04",
+      "subject": "suggestion",
+      "purpose": "A match suggestion is decided within five working days (2,700 working minutes)",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Suggested Mon 16 Nov 10:00, decided Thu 19 Nov 12:00",
+          "input": {
+            "created_at": "2026-11-16T10:00:00+01:00",
+            "decided_at": "2026-11-19T12:00:00+01:00"
+          },
+          "expected": {
+            "outcome": "pass",
+            "detail": "1,740 working minutes"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Suggested Mon 2 Nov 10:00, still open at the as-of moment",
+          "input": {
+            "created_at": "2026-11-02T10:00:00+01:00",
+            "decided_at": null
+          },
+          "expected": {
+            "outcome": "fail",
+            "detail": "Open 10,740 working minutes"
+          }
+        }
+      ]
+    }
+  ]
+}
