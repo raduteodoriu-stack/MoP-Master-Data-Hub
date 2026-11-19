@@ -82,8 +82,10 @@ Matching quality is reported as a test result against the answer key: **precisio
 ## 6. Survivorship: which value goes on the golden record?
 Applied per field, in this order:
 1. A value set through an approved request wins, until a later approved request changes it.
-2. Otherwise the value from the winning source for that field group (MDH-001).
-3. If that source has no value, the most recently changed valid value from another source.
+2. Otherwise the valid value from the winning source for that field group (MDH-001).
+3. If that source has no valid value, the most recently changed valid value from another source. **Not for bank details** (G8, rules v1.4): they come only from the ERP or from a verified, approved bank-change request.
 4. An empty value never replaces a filled one, and an invalid value never replaces a valid one.
+
+**Clarifications (rules v1.4).** "Most recently changed" uses the change time stated by the source; if the source gives none, the time the hub received the record (G6). Two sources changed at the same moment are ranked ERP, CRM, procurement spreadsheet, support desk (G7). A value that fails a validity rule counts as no value.
 
 The golden record stores, for each field, which source record the value came from and which rule chose it.

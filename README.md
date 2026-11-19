@@ -28,7 +28,7 @@ Leak Radar (pipeline risk).
 | Card | Status |
 |---|---|
 | MDH-001 Scope and governance | Documents in this repo |
-| MDH-002 Data standards and quality rules v1 | Rules file and documents in this repo; customer tier added in rules v1.1; same-tax-ID review (M1B) and rule K09 in v1.2; matching fixes and lifecycle, fraud and privacy controls in v1.3 |
+| MDH-002 Data standards and quality rules v1 | Rules file and documents in this repo; customer tier added in rules v1.1; same-tax-ID review (M1B) and rule K09 in v1.2; matching fixes and lifecycle, fraud and privacy controls in v1.3; survivorship clarifications in v1.4 |
 | MDH-003 Data foundation (PostgreSQL) | 29 tables, 24 integrity rules, 14 test files (migration 004 for rules v1.3) |
 | MDH-004 to MDH-010 | Backlog |
 
@@ -44,7 +44,7 @@ Leak Radar (pipeline risk).
 | [docs/database_design.md](docs/database_design.md) | Tables, relationships, history, integrity and access rules |
 | [docs/data_dictionary.md](docs/data_dictionary.md) | Every table and column |
 | [docs/work_instructions/](docs/work_instructions/README.md) | One page per request type (steps completed in MDH-007) |
-| [rules/MDH-RULES-v1.3.json](rules/MDH-RULES-v1.3.json) | The versioned rules the engine reads (current). Earlier versions ([v1.0](rules/MDH-RULES-v1.0.json), [v1.1](rules/MDH-RULES-v1.1.json), [v1.2](rules/MDH-RULES-v1.2.json)) are kept for history |
+| [rules/MDH-RULES-v1.4.json](rules/MDH-RULES-v1.4.json) | The versioned rules the engine reads (current). Earlier versions ([v1.0](rules/MDH-RULES-v1.0.json), [v1.1](rules/MDH-RULES-v1.1.json), [v1.2](rules/MDH-RULES-v1.2.json), [v1.3](rules/MDH-RULES-v1.3.json)) are kept for history |
 
 ## Setup
 
