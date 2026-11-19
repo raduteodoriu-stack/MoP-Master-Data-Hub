@@ -3,10 +3,11 @@
 Tables, relationships, history and integrity rules of the MoP Master Data Hub database.
 Every column is described in [data_dictionary.md](data_dictionary.md). The rules this database
 supports are in [data_standards.md](data_standards.md), [quality_rules.md](quality_rules.md)
-and [`rules/MDH-RULES-v1.1.json`](../rules/MDH-RULES-v1.1.json).
+and [`rules/MDH-RULES-v1.2.json`](../rules/MDH-RULES-v1.2.json).
 
 **Status:** implemented and tested. `SQL/001_create_schema.sql` creates the 25 tables and the
-rules below, `SQL/002_working_minutes.sql` adds the working-time function, and `SQL/tests/`
+rules below, `SQL/002_working_minutes.sql` adds the working-time function, `SQL/003_rules_v1_2.sql`
+allows the M1B suggestion (rules v1.2), and `SQL/tests/`
 holds 13 test files that prove each rule refuses bad data (see [How to run the tests](#how-to-run-the-tests)).
 
 ## Design approach
@@ -270,7 +271,7 @@ back at the end. The summary shows each file with its number of checks, and a lo
 | `005_test_addresses_bank_contacts.sql` | Addresses, bank accounts, contact persons (I09, I13, I14) |
 | `006_test_hierarchy.sql` | One parent, no loops, five levels, recursive read (I12) |
 | `007_test_links_history.sql` | Cross-reference, tracing, field history and lineage (I04, I15, I16, I20) |
-| `008_test_matching_merges.sql` | Match suggestions, merges and undos (I15, I17) |
+| `008_test_matching_merges.sql` | Match suggestions (including M1B), merges and undos (I15, I17) |
 | `009_test_requests.sql` | Requests, status history, approvals, evidence (I15, I18) |
 | `010_test_quality.sql` | Quality runs and results (I15) |
 | `011_test_erasure.sql` | Erasure of a contact person end to end (I02, I14, I15) |
