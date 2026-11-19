@@ -1,0 +1,158 @@
+{
+  "batch": "H",
+  "title": "Hierarchy",
+  "rules_version": "MDH-RULES-v1.5",
+  "status": "reviewed",
+  "cases": [
+    {
+      "id": "H-01",
+      "rules": [
+        "M2",
+        "merge_hierarchy",
+        "I12",
+        "customer tier"
+      ],
+      "purpose": "A group suggestion becomes a hierarchy link",
+      "variants": [
+        {
+          "label": "request",
+          "given": "After M-08 (group suggestion), Sales raises `merge_hierarchy`: BP-900701 'Ensayo Portugal Lda.' (NIPC 509812333) subsidiary_of BP-900702 'Grupo Ensayo S.A.' (NIF A55204176) from 1 Dec 2026",
+          "expected": {
+            "outcome": "approved",
+            "detail": "Approved by the Sales Director; link stored with the request; the steward prepared it"
+          }
+        },
+        {
+          "label": "result",
+          "given": "Effect on the customer tier",
+          "expected": {
+            "outcome": "applied",
+            "detail": "BP-900701 (own tier 3) gets group tier 1 from its mother company (tier 1); reason TIER_GROUP_ROLLUP"
+          }
+        }
+      ]
+    },
+    {
+      "id": "H-02",
+      "rules": [
+        "I12"
+      ],
+      "purpose": "Five levels are allowed, a sixth is refused",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Chain Holding → Grupo → Ibérica → Norte → Bilbao (5 levels)",
+          "expected": {
+            "outcome": "pass",
+            "detail": "Accepted"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Request to place 'Bilbao Office S.L.' under Bilbao (a sixth level)",
+          "expected": {
+            "outcome": "fail",
+            "detail": "Refused by the database (I12); the steward returns the request: the office is a branch address, not a subsidiary"
+          }
+        }
+      ]
+    },
+    {
+      "id": "H-03",
+      "rules": [
+        "I12"
+      ],
+      "purpose": "A loop is refused",
+      "variants": [
+        {
+          "label": "fail",
+          "given": "Request to place the Holding under Norte (Norte is already below the Holding)",
+          "expected": {
+            "outcome": "fail",
+            "detail": "Refused by the database (I12): it would create a loop"
+          }
+        }
+      ]
+    },
+    {
+      "id": "H-04",
+      "rules": [
+        "hierarchy",
+        "K05",
+        "C01"
+      ],
+      "purpose": "A top parent registered outside Spain, Portugal and France",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "BP-900703 'Ensayo Holding GmbH', country DE, name only, no role; Grupo Ensayo S.A. placed under it",
+          "expected": {
+            "outcome": "pass",
+            "detail": "Allowed as a parent with minimal data: no customer or supplier role, so the stage checks (C01) do not apply, and country-specific tax ID and postal code formats are not checked"
+          }
+        },
+        {
+          "label": "fail",
+          "given": "Someone tries to give the German holding a customer role",
+          "expected": {
+            "outcome": "returned",
+            "detail": "Out of scope: partners registered outside ES, PT and FR are parents only; the request is returned"
+          }
+        }
+      ]
+    },
+    {
+      "id": "H-05",
+      "rules": [
+        "I12",
+        "history",
+        "customer tier"
+      ],
+      "purpose": "Reorganisation: a subsidiary is sold to another group",
+      "variants": [
+        {
+          "label": "event",
+          "given": "'Prova UX Lda.' (BP-900611, own tier 2) leaves Grupo Prova (tier 1) and joins Grupo Norte (tier 2) on 1 Nov 2026: the old link is closed on 31 Oct, a new link opens on 1 Nov, both through approved `merge_hierarchy` requests",
+          "expected": {
+            "outcome": "applied",
+            "detail": "Effective-dated: nothing is overwritten"
+          }
+        },
+        {
+          "label": "as-of",
+          "given": "Hierarchy read as of 15 Oct 2026, and as of 27 Nov 2026",
+          "expected": {
+            "outcome": "pass",
+            "detail": "15 Oct: under Grupo Prova, group tier 1. 27 Nov: under Grupo Norte, group tier 2. Reports can show either moment"
+          }
+        }
+      ]
+    },
+    {
+      "id": "H-06",
+      "rules": [
+        "known limit from batch M",
+        "merge_hierarchy"
+      ],
+      "purpose": "A subsidiary abroad with its mother company's name and no tax ID",
+      "variants": [
+        {
+          "label": "pass",
+          "given": "Support desk record 'Grupo Ensayo, Lda.' (PT, no tax ID) gets no match suggestion (M3 needs the same country)",
+          "expected": {
+            "outcome": "pass",
+            "detail": "Becomes its own partner, as agreed in batch M; it cannot be merged into its mother company by mistake"
+          }
+        },
+        {
+          "label": "request",
+          "given": "The steward finds it in the weekly review of new partners and raises `merge_hierarchy` to place it under Grupo Ensayo S.A.; the NIPC 510994806 is added later through a high-risk change request",
+          "expected": {
+            "outcome": "approved",
+            "detail": "Approved by the Sales Director; the subsidiary now rolls up to the group's tier once its own tier is known (G9)"
+          }
+        }
+      ]
+    }
+  ]
+}

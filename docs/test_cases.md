@@ -12,7 +12,7 @@ engine tests (MDH-005 onwards) check the engine against these outcomes.
 | C | C-01 to C-17 | Company lifecycle, fraud and privacy (rules v1.3) | Reviewed |
 | S | S-01 to S-09 | Survivorship | Reviewed |
 | T | T-01 to T-10 | Customer tier | Reviewed |
-| H | H-01 to H-05 | Hierarchy | To do |
+| H | H-01 to H-06 | Hierarchy | Reviewed |
 | R | R-01 to R-18 | Requests | To do |
 | E | E-01 to E-03 | Erasure | To do |
 | L | L-01 to L-03 | Coupling with LeadFlow | To do |
@@ -529,3 +529,25 @@ Every row was computed by a reference implementation of these rules.
 - **T-08** BP-900616 (calculated tier 2, 35) is raised to tier 1 by request RQ-900616, approved by the Sales Director; BP-900618 (group tier 1) is lowered to tier 3 because it no longer trades. Calculated and group tiers are kept beside the override; both count in KPI12. RQ-900616 override_customer_tier raised by AE-ES-01, approved by the Sales Director (four-eyes); RQ-900618 override_customer_tier raised by AE-PT-01, approved by the Sales Director.
 - **T-09** An approved change_low_risk request moves the band from 11-49 (25, tier 3) to 250-999 (35, tier 2): the tier is recalculated at once and the change is recorded with the request as lineage. Before: band 11-49, score 25, tier 3; RQ-900619 change_low_risk employee_band 11-49 → 250-999, approved by the steward; After: score 35, tier 2.
 - **T-10** BP-900621 was absorbed by BP-900620 (successor_of): that link is not a hierarchy link, so BP-900621 keeps its own tier 3. BP-900622's subsidiary_of link to BP-900620 was closed on 1 Nov 2026: from then its group tier is its own tier 3. Both stay tier 3 with no TIER_GROUP_ROLLUP.
+
+## Batch H: Hierarchy (H-01 to H-06)
+
+**Status:** reviewed, no corrections. Rules version `MDH-RULES-v1.5`. All companies and tax IDs are synthetic.
+
+**Review notes.** Agreed as drafted, including a new steward routine for H-06: a weekly review of newly created partners, to place subsidiaries that matching cannot group (written into the work instructions in MDH-007).
+
+Hierarchy changes are `merge_hierarchy` requests, prepared by the steward and approved by the Sales Director. Links are effective-dated (`subsidiary_of`, one parent at a time, at most five levels, no loops: I12), so the group as it was on any date can be rebuilt. The machine-readable version is `tests/fixtures/cases/h_hierarchy.json`.
+
+| Case | Rules | Variant | Given | Expected | Why |
+|---|---|---|---|---|---|
+| H-01 A group suggestion becomes a hierarchy link | M2, merge_hierarchy, I12, customer tier | request | After M-08 (group suggestion), Sales raises `merge_hierarchy`: BP-900701 'Ensayo Portugal Lda.' (NIPC 509812333) subsidiary_of BP-900702 'Grupo Ensayo S.A.' (NIF A55204176) from 1 Dec 2026 | ✔ approved | Approved by the Sales Director; link stored with the request; the steward prepared it |
+|  |  | result | Effect on the customer tier | ✔ applied | BP-900701 (own tier 3) gets group tier 1 from its mother company (tier 1); reason TIER_GROUP_ROLLUP |
+| H-02 Five levels are allowed, a sixth is refused | I12 | pass | Chain Holding → Grupo → Ibérica → Norte → Bilbao (5 levels) | ✅ pass | Accepted |
+|  |  | fail | Request to place 'Bilbao Office S.L.' under Bilbao (a sixth level) | ❌ refused | Refused by the database (I12); the steward returns the request: the office is a branch address, not a subsidiary |
+| H-03 A loop is refused | I12 | fail | Request to place the Holding under Norte (Norte is already below the Holding) | ❌ refused | Refused by the database (I12): it would create a loop |
+| H-04 A top parent registered outside Spain, Portugal and France | hierarchy, K05, C01 | pass | BP-900703 'Ensayo Holding GmbH', country DE, name only, no role; Grupo Ensayo S.A. placed under it | ✅ pass | Allowed as a parent with minimal data: no customer or supplier role, so the stage checks (C01) do not apply, and country-specific tax ID and postal code formats are not checked |
+|  |  | fail | Someone tries to give the German holding a customer role | ↩ returned | Out of scope: partners registered outside ES, PT and FR are parents only; the request is returned |
+| H-05 Reorganisation: a subsidiary is sold to another group | I12, history, customer tier | event | 'Prova UX Lda.' (BP-900611, own tier 2) leaves Grupo Prova (tier 1) and joins Grupo Norte (tier 2) on 1 Nov 2026: the old link is closed on 31 Oct, a new link opens on 1 Nov, both through approved `merge_hierarchy` requests | ✔ applied | Effective-dated: nothing is overwritten |
+|  |  | as-of | Hierarchy read as of 15 Oct 2026, and as of 27 Nov 2026 | ✅ pass | 15 Oct: under Grupo Prova, group tier 1. 27 Nov: under Grupo Norte, group tier 2. Reports can show either moment |
+| H-06 A subsidiary abroad with its mother company's name and no tax ID | known limit from batch M, merge_hierarchy | pass | Support desk record 'Grupo Ensayo, Lda.' (PT, no tax ID) gets no match suggestion (M3 needs the same country) | ✅ pass | Becomes its own partner, as agreed in batch M; it cannot be merged into its mother company by mistake |
+|  |  | request | The steward finds it in the weekly review of new partners and raises `merge_hierarchy` to place it under Grupo Ensayo S.A.; the NIPC 510994806 is added later through a high-risk change request | ✔ approved | Approved by the Sales Director; the subsidiary now rolls up to the group's tier once its own tier is known (G9) |
