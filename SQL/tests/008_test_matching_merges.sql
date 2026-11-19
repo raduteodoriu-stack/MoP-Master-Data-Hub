@@ -1,5 +1,5 @@
 -- MDH-003 constraint tests: match suggestions, merges and undos.
--- Integrity rules: I15, I17. All test data is rolled back.
+-- Integrity rules: I15, I17; M1B from migration 003 (rules v1.2). All test data is rolled back.
 
 BEGIN;
 \ir _helpers.sql
@@ -86,6 +86,17 @@ SELECT pg_temp.fails(17, 'An undo must point to the merge it reverses',
 SELECT pg_temp.fails(18, 'I15: merge events cannot be changed',
     $q$UPDATE governance.merge_events SET reason = 'Rewritten' WHERE merge_event_id = '00000000-0000-0000-0000-000000000801'$q$,
     'I15');
+
+SELECT pg_temp.ok(19, 'Rules v1.2: a same-tax-ID, different-name pair is stored as an M1B suggestion',
+    $q$INSERT INTO governance.match_suggestions (a_system_code, a_source_key, a_content_sha256, b_system_code, b_source_key,
+           b_content_sha256, rule_id, strength, score, compared_values, rules_version)
+       VALUES ('crm', 'C-819', repeat('4', 64), 'erp', 'E-819', repeat('5', 64), 'M1B', 'tax_conflict', 0.420,
+               '{"tax_id": "B12345674", "name": {"a": "ACME RESEARCH PORTUGAL", "b": "ACME RESEARCH"}}', 'TEST-RULES')$q$);
+SELECT pg_temp.fails(20, 'Rules v1.2: M1B must have the tax_conflict strength',
+    $q$INSERT INTO governance.match_suggestions (a_system_code, a_source_key, a_content_sha256, b_system_code, b_source_key,
+           b_content_sha256, rule_id, strength, score, compared_values, rules_version)
+       VALUES ('crm', 'C-820', repeat('4', 64), 'erp', 'E-820', repeat('5', 64), 'M1B', 'strong', 0.420, '{}', 'TEST-RULES')$q$,
+    'match_suggestions_rule_strength_valid');
 
 \ir _report.sql
 ROLLBACK;

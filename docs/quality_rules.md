@@ -34,6 +34,7 @@ Each rule is checked per record and stored as pass, fail or not applicable, with
 | K06 | Consistency | Each governed field has the same value in every source system as in the golden record | Warning |
 | K07 | Consistency | A blocked partner has a reason and an approver; an unblocked partner has neither | Error |
 | K08 | Consistency | A contact person's email domain is the partner's web domain | Warning |
+| K09 | Consistency | A source record carries a tax ID that belongs to another partner (for example a subsidiary holding its mother company's tax ID); reported back to the source system's owner (rules v1.2) | Warning |
 | T01 | Timeliness | A customer or approved supplier was reviewed in the last 12 months | Warning |
 | T02 | Timeliness | Supplier bank details were verified after their last change and within the last 24 months | Warning |
 | T03 | Timeliness | A change in a source system reaches the hub within one working day | Warning |
@@ -46,9 +47,12 @@ Names are compared in standardised form: upper case, accents and punctuation rem
 
 Rules are applied in this order, and the first that applies decides.
 
+**Why M1 needs matching names too (rules v1.2).** A tax ID identifies one legal entity, but source systems do not always hold the right one: sales often copies the mother company's tax ID onto a subsidiary's account. Linking on the tax ID alone would merge the subsidiary into its mother company without anyone noticing. So a shared tax ID with clearly different names goes to the steward instead (M1B).
+
 | ID | Evidence | Outcome |
 |---|---|---|
-| M1 | Same valid tax ID | Same partner. Linked automatically, logged, reversible. Applies across roles, so a customer record and a supplier record become one partner with two roles |
+| M1 | Same valid tax ID **and** standardised names at least 0.90 similar | Same partner. Linked automatically, logged, reversible. Applies across roles, so a customer record and a supplier record become one partner with two roles |
+| M1B | Same valid tax ID but names less than 0.90 similar (rules v1.2) | High-priority steward review. *Confirmed:* same legal entity (an office or trading name), one partner, with the differing name or address kept as a trading name or branch address. *Rejected:* different companies (for example a subsidiary carrying its mother company's tax ID), kept apart, and the wrong tax ID is flagged by K09 and reported to the source owner |
 | M2 | Different valid tax IDs | Never the same partner. If the web domain also matches or the name similarity is 0.85 or more, a *group suggestion* goes to the steward (possible parent and subsidiary) |
 | M3 | At least one side has no tax ID; same web domain, same country, name similarity 0.92 or more | Strong suggestion (never linked automatically, D8) |
 | M4 | Name similarity 0.85 or more, and the same postal code or phone | Suggestion |

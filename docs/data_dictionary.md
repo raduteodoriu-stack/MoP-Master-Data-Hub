@@ -51,7 +51,7 @@ One loaded version of the rules file. Every result names the version that produc
 
 | Column | Type | Null | Default | Description |
 |---|---|---|---|---|
-| `rules_version` | text | no |  | Primary key, e.g. `MDH-RULES-v1.1`; must equal `rules_version` inside the file |
+| `rules_version` | text | no |  | Primary key, e.g. `MDH-RULES-v1.2`; must equal `rules_version` inside the file |
 | `file_sha256` | text | no |  | SHA-256 of the rules file as loaded; 64 lower-case hex characters |
 | `loaded_at` | timestamptz | no | `now()` | When the version was loaded |
 | `notes` | text | yes |  | What changed compared with the previous version |
@@ -351,7 +351,7 @@ One rule checked on one partner or one source record in one run. Append-only (I1
 |---|---|---|---|---|
 | `result_id` | bigint | no | identity | Primary key |
 | `run_id` | uuid | no |  | Run (FK) |
-| `rule_id` | text | no |  | Rule ID from the rules file, pattern `^[CVUKT][0-9]{2}$` |
+| `rule_id` | text | no |  | Rule ID from the rules file (for example `K09`), pattern `^[CVUKT][0-9]{2}$` |
 | `severity` | text | no |  | `error` or `warning`, copied from the rules version |
 | `bp_id` | text | yes |  | Partner checked (FK) |
 | `source_record_id` | uuid | yes |  | Source record checked (FK). Exactly one of the two is filled |
@@ -360,7 +360,7 @@ One rule checked on one partner or one source record in one run. Append-only (I1
 
 ### governance.match_suggestions
 
-One pair of source records the engine thinks may be the same company (rules M2–M6). M1 links directly and creates no suggestion.
+One pair of source records the engine thinks may be the same company (rules M1B–M6). M1 links directly and creates no suggestion.
 
 | Column | Type | Null | Default | Description |
 |---|---|---|---|---|
@@ -371,8 +371,8 @@ One pair of source records the engine thinks may be the same company (rules M2�
 | `b_system_code` | text | no |  | Second record's system |
 | `b_source_key` | text | no |  | Second record's key |
 | `b_content_sha256` | text | no |  | Version of the second record compared |
-| `rule_id` | text | no |  | `M2` (group), `M3`, `M4`, `M5`, `M6` (bank risk) |
-| `strength` | text | no |  | `strong`, `normal`, `weak`, `group`, `bank_risk` |
+| `rule_id` | text | no |  | `M1B` (same tax ID, different names; migration 003), `M2` (group), `M3`, `M4`, `M5`, `M6` (bank risk) |
+| `strength` | text | no |  | `tax_conflict` (M1B), `strong`, `normal`, `weak`, `group`, `bank_risk` |
 | `score` | numeric(4,3) | no |  | Name similarity or rule score, 0–1 |
 | `compared_values` | jsonb | no |  | The values compared and how each matched |
 | `status` | text | no | `'open'` | `open`, `confirmed`, `rejected`, `group`. At most one open suggestion per pair (I17) |

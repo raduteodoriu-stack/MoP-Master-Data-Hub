@@ -2,7 +2,7 @@
 
 What a correct business partner record looks like: its parts, how each field is written, and
 which fields are mandatory at each lifecycle stage. The machine-readable version is
-[`rules/MDH-RULES-v1.1.json`](../rules/MDH-RULES-v1.1.json); if the two ever disagree, the
+[`rules/MDH-RULES-v1.2.json`](../rules/MDH-RULES-v1.2.json); if the two ever disagree, the
 rules file is what the engine applies and this page must be corrected.
 
 ## Decisions
@@ -20,6 +20,7 @@ rules file is what the engine applies and this page must be corrected.
 | D9 | Individuals (freelancers) are out of scope as suppliers |
 | D10 | Review periods: customers and approved suppliers every 12 months (T01); supplier bank details every 24 months (T02). Request targets as in section 7 |
 | D11 | Customer tier replaces *segment*: calculated from industry and employee band with LeadFlow's fit points, rolled up to the company group, overridable only through a request approved by the Sales Director (rules v1.1) |
+| D12 | M1 links on a shared tax ID only when the names also agree (0.90 or more); otherwise the new suggestion rule M1B sends the pair to the steward, and warning rule K09 flags a source record carrying another partner's tax ID (rules v1.2) |
 
 ## 1. What a business partner record contains
 | Part | Holds | One per partner? |
@@ -110,7 +111,7 @@ is loaded. KPI12 (Tier Override Rate) shows how often Sales disagrees with the r
 ## Controlled values kept in the rules file
 
 Some lists are too long for these tables and live only in
-[`rules/MDH-RULES-v1.1.json`](../rules/MDH-RULES-v1.1.json) under `controlled_values` and
+[`rules/MDH-RULES-v1.2.json`](../rules/MDH-RULES-v1.2.json) under `controlled_values` and
 `countries`: legal forms per country, free email domains (rule V05), name placeholders (rule
 V11), legal bases for contact persons, block reasons, industry codes and employee bands (the
 same lists as LeadFlow).
