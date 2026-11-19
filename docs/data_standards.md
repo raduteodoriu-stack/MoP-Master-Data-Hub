@@ -2,7 +2,7 @@
 
 What a correct business partner record looks like: its parts, how each field is written, and
 which fields are mandatory at each lifecycle stage. The machine-readable version is
-[`rules/MDH-RULES-v1.4.json`](../rules/MDH-RULES-v1.4.json); if the two ever disagree, the
+[`rules/MDH-RULES-v1.5.json`](../rules/MDH-RULES-v1.5.json); if the two ever disagree, the
 rules file is what the engine applies and this page must be corrected.
 
 ## Decisions
@@ -23,6 +23,7 @@ rules file is what the engine applies and this page must be corrected.
 | D12 | M1 links on a shared tax ID only when the names also agree (0.90 or more); otherwise the new suggestion rule M1B sends the pair to the steward, and warning rule K09 flags a source record carrying another partner's tax ID (rules v1.2) |
 | D13 | Rules v1.3: matching fixes G1–G5 (defined similarity, independent bank-risk check, prefix names, invalid tax IDs ignored, no upper limit on M5); former names used in matching; corporate events and supplier reactivation as requests; insolvency and absorbed blocks with a successor link; contact status; holder-name check with match, close match and no match; factoring and alternative payees as documented exceptions; simulated VIES status; employee–supplier cross-match; GDPR retention and suppression list |
 | D14 | Rules v1.4: survivorship clarifications found while writing the MDH-004 survivorship cases. The change time is the one stated by the source (G6); ties are broken in the order ERP, CRM, procurement spreadsheet, support desk (G7); bank details are never filled from a non-winning source (G8) |
+| D15 | Rules v1.5: a partner whose own customer tier is unknown keeps group tier unknown until its industry and employee band are known (G9, from the MDH-004 customer-tier review); the database enforces it (migration 005) |
 
 ## 1. What a business partner record contains
 | Part | Holds | One per partner? |
@@ -117,7 +118,9 @@ readiness change with every sales conversation, so they belong to the lead, not 
    reason codes (for example `TIER_INDUSTRY_CORE`, `TIER_SIZE_50_249`).
 2. **Group tier:** the highest calculated tier among all current members of the partner's
    company group (`TIER_GROUP_ROLLUP` when it is higher than its own). A partner with no group
-   has a group tier equal to its calculated tier.
+   has a group tier equal to its calculated tier. A partner whose own tier is unknown keeps
+   group tier unknown until its own data is complete (G9, rules v1.5); its unknown tier is
+   ignored when the other members' group tier is calculated.
 3. **Override:** set only through an `override_customer_tier` request approved by the Sales
    Director. The calculated and group tiers are kept beside it.
 
@@ -128,7 +131,7 @@ is loaded. KPI12 (Tier Override Rate) shows how often Sales disagrees with the r
 ## Controlled values kept in the rules file
 
 Some lists are too long for these tables and live only in
-[`rules/MDH-RULES-v1.4.json`](../rules/MDH-RULES-v1.4.json) under `controlled_values` and
+[`rules/MDH-RULES-v1.5.json`](../rules/MDH-RULES-v1.5.json) under `controlled_values` and
 `countries`: legal forms per country, free email domains (rule V05), name placeholders (rule
 V11), legal bases for contact persons, block reasons, industry codes and employee bands (the
 same lists as LeadFlow).

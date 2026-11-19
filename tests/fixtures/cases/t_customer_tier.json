@@ -1,0 +1,459 @@
+{
+  "batch": "T",
+  "title": "Customer tier",
+  "rules_version": "MDH-RULES-v1.5",
+  "status": "reviewed",
+  "cases": [
+    {
+      "id": "T-01",
+      "purpose": "Lower threshold (30, inclusive)",
+      "partners": [
+        {
+          "bp_id": "BP-900601",
+          "name": "Retail Prova S.L.",
+          "industry_code": "retail_ecommerce",
+          "employee_band": "11-49",
+          "parent": null,
+          "override": null,
+          "calc": "tier_3",
+          "score": 25,
+          "codes": [
+            "TIER_INDUSTRY_OTHER_NAMED",
+            "TIER_SIZE_11_49"
+          ],
+          "group": "tier_3",
+          "effective": "tier_3"
+        },
+        {
+          "bp_id": "BP-900602",
+          "name": "Banca Prova S.A.",
+          "industry_code": "financial_services",
+          "employee_band": "50-249",
+          "parent": null,
+          "override": null,
+          "calc": "tier_2",
+          "score": 30,
+          "codes": [
+            "TIER_INDUSTRY_OTHER_NAMED",
+            "TIER_SIZE_50_249"
+          ],
+          "group": "tier_2",
+          "effective": "tier_2"
+        }
+      ],
+      "events": [],
+      "why": "Other named industry is 20 points: 20 + 5 = 25 is tier 3; 20 + 10 = 30 reaches tier 2 (30 counts)",
+      "note": ""
+    },
+    {
+      "id": "T-02",
+      "purpose": "Upper threshold (50, inclusive)",
+      "partners": [
+        {
+          "bp_id": "BP-900603",
+          "name": "Sondeos Prova S.L.",
+          "industry_code": "market_research",
+          "employee_band": "11-49",
+          "parent": null,
+          "override": null,
+          "calc": "tier_2",
+          "score": 45,
+          "codes": [
+            "TIER_INDUSTRY_CORE",
+            "TIER_SIZE_11_49"
+          ],
+          "group": "tier_2",
+          "effective": "tier_2"
+        },
+        {
+          "bp_id": "BP-900604",
+          "name": "Panel Prova S.L.",
+          "industry_code": "panel_sample_provider",
+          "employee_band": "50-249",
+          "parent": null,
+          "override": null,
+          "calc": "tier_1",
+          "score": 50,
+          "codes": [
+            "TIER_INDUSTRY_CORE",
+            "TIER_SIZE_50_249"
+          ],
+          "group": "tier_1",
+          "effective": "tier_1"
+        },
+        {
+          "bp_id": "BP-900605",
+          "name": "UX Prova SAS",
+          "industry_code": "ux_research_agency",
+          "employee_band": "1000_plus",
+          "parent": null,
+          "override": null,
+          "calc": "tier_1",
+          "score": 50,
+          "codes": [
+            "TIER_INDUSTRY_ADJACENT",
+            "TIER_SIZE_1000_PLUS"
+          ],
+          "group": "tier_1",
+          "effective": "tier_1"
+        }
+      ],
+      "events": [],
+      "why": "Core research is 40 points: 40 + 5 = 45 is tier 2, 40 + 10 = 50 is tier 1; research-adjacent 30 + 20 = 50 is tier 1",
+      "note": ""
+    },
+    {
+      "id": "T-03",
+      "purpose": "Industry 'other' never passes tier 3",
+      "partners": [
+        {
+          "bp_id": "BP-900606",
+          "name": "Outros Teste Lda.",
+          "industry_code": "other",
+          "employee_band": "1000_plus",
+          "parent": null,
+          "override": null,
+          "calc": "tier_3",
+          "score": 20,
+          "codes": [
+            "TIER_INDUSTRY_OTHER",
+            "TIER_SIZE_1000_PLUS"
+          ],
+          "group": "tier_3",
+          "effective": "tier_3"
+        }
+      ],
+      "events": [],
+      "why": "0 + 20 = 20: even a very large company stays tier 3 when its industry is 'other'",
+      "note": ""
+    },
+    {
+      "id": "T-04",
+      "purpose": "Unknown industry gives an unknown tier",
+      "partners": [
+        {
+          "bp_id": "BP-900607",
+          "name": "Sem Setor Lda.",
+          "industry_code": "unknown",
+          "employee_band": "250-999",
+          "parent": null,
+          "override": null,
+          "calc": "unknown",
+          "score": null,
+          "codes": [
+            "TIER_UNKNOWN_INDUSTRY"
+          ],
+          "group": "unknown",
+          "effective": "unknown"
+        }
+      ],
+      "events": [],
+      "why": "No tier is guessed: score empty, reason TIER_UNKNOWN_INDUSTRY; C02 also fails for a customer",
+      "note": ""
+    },
+    {
+      "id": "T-05",
+      "purpose": "Unknown employee band gives an unknown tier",
+      "partners": [
+        {
+          "bp_id": "BP-900608",
+          "name": "Sans Taille SAS",
+          "industry_code": "market_research",
+          "employee_band": "unknown",
+          "parent": null,
+          "override": null,
+          "calc": "unknown",
+          "score": null,
+          "codes": [
+            "TIER_UNKNOWN_SIZE"
+          ],
+          "group": "unknown",
+          "effective": "unknown"
+        }
+      ],
+      "events": [],
+      "why": "Even with 40 industry points the tier stays unknown: reason TIER_UNKNOWN_SIZE",
+      "note": ""
+    },
+    {
+      "id": "T-06",
+      "purpose": "Group roll-up raises small subsidiaries",
+      "partners": [
+        {
+          "bp_id": "BP-900609",
+          "name": "Grupo Prova S.A.",
+          "industry_code": "market_research",
+          "employee_band": "1000_plus",
+          "parent": null,
+          "override": null,
+          "calc": "tier_1",
+          "score": 60,
+          "codes": [
+            "TIER_INDUSTRY_CORE",
+            "TIER_SIZE_1000_PLUS"
+          ],
+          "group": "tier_1",
+          "effective": "tier_1"
+        },
+        {
+          "bp_id": "BP-900610",
+          "name": "Prova Retail S.L.",
+          "industry_code": "retail_ecommerce",
+          "employee_band": "11-49",
+          "parent": "BP-900609",
+          "override": null,
+          "calc": "tier_3",
+          "score": 25,
+          "codes": [
+            "TIER_INDUSTRY_OTHER_NAMED",
+            "TIER_SIZE_11_49",
+            "TIER_GROUP_ROLLUP"
+          ],
+          "group": "tier_1",
+          "effective": "tier_1"
+        },
+        {
+          "bp_id": "BP-900611",
+          "name": "Prova UX Lda.",
+          "industry_code": "ux_research_agency",
+          "employee_band": "250-999",
+          "parent": "BP-900609",
+          "override": null,
+          "calc": "tier_2",
+          "score": 45,
+          "codes": [
+            "TIER_INDUSTRY_ADJACENT",
+            "TIER_SIZE_250_999",
+            "TIER_GROUP_ROLLUP"
+          ],
+          "group": "tier_1",
+          "effective": "tier_1"
+        },
+        {
+          "bp_id": "BP-900612",
+          "name": "Prova Lisboa Lda.",
+          "industry_code": "other",
+          "employee_band": "1-10",
+          "parent": "BP-900611",
+          "override": null,
+          "calc": "tier_3",
+          "score": 0,
+          "codes": [
+            "TIER_INDUSTRY_OTHER",
+            "TIER_SIZE_1_10",
+            "TIER_GROUP_ROLLUP"
+          ],
+          "group": "tier_1",
+          "effective": "tier_1"
+        }
+      ],
+      "events": [],
+      "why": "The mother company is tier 1 (60), so every member of the group, including the grandchild, gets group tier 1 and effective tier 1; their own calculated tiers are kept",
+      "note": ""
+    },
+    {
+      "id": "T-07",
+      "purpose": "A partner with an unknown tier stays unknown (G9)",
+      "partners": [
+        {
+          "bp_id": "BP-900613",
+          "name": "Holding Teste SGPS",
+          "industry_code": "unknown",
+          "employee_band": "unknown",
+          "parent": null,
+          "override": null,
+          "calc": "unknown",
+          "score": null,
+          "codes": [
+            "TIER_UNKNOWN_INDUSTRY",
+            "TIER_UNKNOWN_SIZE"
+          ],
+          "group": "unknown",
+          "effective": "unknown"
+        },
+        {
+          "bp_id": "BP-900614",
+          "name": "Teste Norte Lda.",
+          "industry_code": "other",
+          "employee_band": "11-49",
+          "parent": "BP-900613",
+          "override": null,
+          "calc": "tier_3",
+          "score": 5,
+          "codes": [
+            "TIER_INDUSTRY_OTHER",
+            "TIER_SIZE_11_49"
+          ],
+          "group": "tier_3",
+          "effective": "tier_3"
+        },
+        {
+          "bp_id": "BP-900615",
+          "name": "Teste Sul Lda.",
+          "industry_code": "unknown",
+          "employee_band": "50-249",
+          "parent": "BP-900613",
+          "override": null,
+          "calc": "unknown",
+          "score": null,
+          "codes": [
+            "TIER_UNKNOWN_INDUSTRY"
+          ],
+          "group": "unknown",
+          "effective": "unknown"
+        }
+      ],
+      "events": [],
+      "why": "Only Teste Norte has a known tier (tier 3), so its group tier is tier 3. The holding and Teste Sul keep group and effective tier unknown until their own industry and employee band are known (G9, rules v1.5)",
+      "note": ""
+    },
+    {
+      "id": "T-08",
+      "purpose": "A Sales Director override, upwards and downwards",
+      "partners": [
+        {
+          "bp_id": "BP-900616",
+          "name": "Analytics Prova S.L.",
+          "industry_code": "research_technology",
+          "employee_band": "11-49",
+          "parent": null,
+          "override": "tier_1",
+          "calc": "tier_2",
+          "score": 35,
+          "codes": [
+            "TIER_INDUSTRY_ADJACENT",
+            "TIER_SIZE_11_49",
+            "TIER_OVERRIDE"
+          ],
+          "group": "tier_2",
+          "effective": "tier_1"
+        },
+        {
+          "bp_id": "BP-900617",
+          "name": "Grupo Ensaio S.A.",
+          "industry_code": "market_research",
+          "employee_band": "1000_plus",
+          "parent": null,
+          "override": null,
+          "calc": "tier_1",
+          "score": 60,
+          "codes": [
+            "TIER_INDUSTRY_CORE",
+            "TIER_SIZE_1000_PLUS"
+          ],
+          "group": "tier_1",
+          "effective": "tier_1"
+        },
+        {
+          "bp_id": "BP-900618",
+          "name": "Ensaio Dormente Lda.",
+          "industry_code": "market_research",
+          "employee_band": "50-249",
+          "parent": "BP-900617",
+          "override": "tier_3",
+          "calc": "tier_1",
+          "score": 50,
+          "codes": [
+            "TIER_INDUSTRY_CORE",
+            "TIER_SIZE_50_249",
+            "TIER_OVERRIDE"
+          ],
+          "group": "tier_1",
+          "effective": "tier_3"
+        }
+      ],
+      "events": [
+        "RQ-900616 override_customer_tier raised by AE-ES-01, approved by the Sales Director (four-eyes)",
+        "RQ-900618 override_customer_tier raised by AE-PT-01, approved by the Sales Director"
+      ],
+      "why": "BP-900616 (calculated tier 2, 35) is raised to tier 1 by request RQ-900616, approved by the Sales Director; BP-900618 (group tier 1) is lowered to tier 3 because it no longer trades. Calculated and group tiers are kept beside the override; both count in KPI12",
+      "note": ""
+    },
+    {
+      "id": "T-09",
+      "purpose": "Recalculation after the employee band changes",
+      "partners": [
+        {
+          "bp_id": "BP-900619",
+          "name": "Comercio Prova S.L.",
+          "industry_code": "retail_ecommerce",
+          "employee_band": "250-999",
+          "parent": null,
+          "override": null,
+          "calc": "tier_2",
+          "score": 35,
+          "codes": [
+            "TIER_INDUSTRY_OTHER_NAMED",
+            "TIER_SIZE_250_999"
+          ],
+          "group": "tier_2",
+          "effective": "tier_2"
+        }
+      ],
+      "events": [
+        "Before: band 11-49, score 25, tier 3",
+        "RQ-900619 change_low_risk employee_band 11-49 → 250-999, approved by the steward",
+        "After: score 35, tier 2"
+      ],
+      "why": "An approved change_low_risk request moves the band from 11-49 (25, tier 3) to 250-999 (35, tier 2): the tier is recalculated at once and the change is recorded with the request as lineage",
+      "note": ""
+    },
+    {
+      "id": "T-10",
+      "purpose": "Successor links are not a group; leaving a group lowers the group tier",
+      "partners": [
+        {
+          "bp_id": "BP-900620",
+          "name": "Absorbente Prova S.A.",
+          "industry_code": "market_research",
+          "employee_band": "1000_plus",
+          "parent": null,
+          "override": null,
+          "calc": "tier_1",
+          "score": 60,
+          "codes": [
+            "TIER_INDUSTRY_CORE",
+            "TIER_SIZE_1000_PLUS"
+          ],
+          "group": "tier_1",
+          "effective": "tier_1"
+        },
+        {
+          "bp_id": "BP-900621",
+          "name": "Absorbida Prova S.L.",
+          "industry_code": "consumer_goods",
+          "employee_band": "1-10",
+          "parent": null,
+          "override": null,
+          "calc": "tier_3",
+          "score": 20,
+          "codes": [
+            "TIER_INDUSTRY_OTHER_NAMED",
+            "TIER_SIZE_1_10"
+          ],
+          "group": "tier_3",
+          "effective": "tier_3"
+        },
+        {
+          "bp_id": "BP-900622",
+          "name": "Ex-Filial Prova S.L.",
+          "industry_code": "consumer_goods",
+          "employee_band": "11-49",
+          "parent": null,
+          "override": null,
+          "calc": "tier_3",
+          "score": 25,
+          "codes": [
+            "TIER_INDUSTRY_OTHER_NAMED",
+            "TIER_SIZE_11_49"
+          ],
+          "group": "tier_3",
+          "effective": "tier_3"
+        }
+      ],
+      "events": [],
+      "why": "BP-900621 was absorbed by BP-900620 (successor_of): that link is not a hierarchy link, so BP-900621 keeps its own tier 3. BP-900622's subsidiary_of link to BP-900620 was closed on 1 Nov 2026: from then its group tier is its own tier 3",
+      "note": "Both stay tier 3 with no TIER_GROUP_ROLLUP"
+    }
+  ]
+}

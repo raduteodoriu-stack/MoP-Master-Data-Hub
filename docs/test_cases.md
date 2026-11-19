@@ -11,7 +11,7 @@ engine tests (MDH-005 onwards) check the engine against these outcomes.
 | M | M-01 to M-18 | Matching rules M1 to M6 and the four duplicate patterns | Reviewed |
 | C | C-01 to C-17 | Company lifecycle, fraud and privacy (rules v1.3) | Reviewed |
 | S | S-01 to S-09 | Survivorship | Reviewed |
-| T | T-01 to T-09 | Customer tier | To do |
+| T | T-01 to T-10 | Customer tier | Reviewed |
 | H | H-01 to H-05 | Hierarchy | To do |
 | R | R-01 to R-18 | Requests | To do |
 | E | E-01 to E-03 | Erasure | To do |
@@ -481,3 +481,51 @@ Each expected result below was also computed by a small reference implementation
 | S-07 Customer and supplier accounts with different bank details (G8) | `iban` (erp) | (none) | erp E-500701 v1: ES3899990004000111222333 · 2026-11-02 08:00<br>procurement_sheet P-500701 v1: ES4099990005000444555666 · 2026-11-04 15:00 | **ES3899990004000111222333** | 2 | After M1 links the ERP account and the spreadsheet row (same SIREN), the ERP's IBAN wins; the spreadsheet's different IBAN is a K06 warning and can only be changed through a verified change_bank_details request |
 | S-08 Bank details are never filled from a non-winning source (G8) | `iban` (erp) | (none) | erp E-500801 v1: (empty) · 2026-11-02 08:00<br>procurement_sheet P-500801 v1: ES4299990006000777888999 · 2026-11-04 15:00 | **(none)** | 4 | The ERP has no IBAN and step 3 does not apply to bank details: the supplier stays without bank details until a verified change_bank_details request (C01 fails for an approved supplier) |
 | S-09 A tie in step 3 is broken by a fixed source order (G7) | `registered_address.street` (erp) | (none) | erp E-500901 v1: (empty) · 2026-11-02 08:00<br>crm C-500901 v1: Carrer de Prova 1 · 2026-11-05 10:00<br>support S-500901 v1: Carrer Prova, 1 · 2026-11-05 10:00 | **Carrer de Prova 1** | 3 | CRM and support changed it at the same moment: the order ERP, CRM, procurement spreadsheet, support desk picks the CRM |
+
+## Batch T: Customer tier (T-01 to T-10)
+
+**Status:** reviewed. Rules version `MDH-RULES-v1.5` (customer tier from v1.1, G9 from v1.5). All companies are synthetic.
+
+**Review notes.** One correction: in T-07 a partner whose own tier is unknown now keeps group tier unknown until its own data is complete, instead of taking the group's tier. Released as G9 in rules v1.5 and enforced by migration 005. Agreed as drafted: overrides can lower a tier as well as raise it (T-08); a successor link from a merger is not a group link (T-10).
+
+Score = industry points (core research 40, research-adjacent 30, other named 20, `other` 0) + employee-band points (1–10: 0, 11–49: 5, 50–249: 10, 250–999: 15, 1000+: 20). Tier 1 from 50, tier 2 from 30, tier 3 below. Group tier = the best known calculated tier among the current members of the company group (`subsidiary_of` links only); a partner whose own tier is unknown keeps group tier unknown (G9). Effective tier = the override if there is one, otherwise the group tier.
+
+Every row was computed by a reference implementation of these rules.
+
+| Case | Partner | Industry · band | Score | Calculated | Group | Override | Effective | Reason codes |
+|---|---|---|---|---|---|---|---|---|
+| T-01 Lower threshold (30, inclusive) | BP-900601 Retail Prova S.L. | retail_ecommerce · 11-49 | 25 | Tier 3 | Tier 3 | – | **Tier 3** | TIER_INDUSTRY_OTHER_NAMED, TIER_SIZE_11_49 |
+|  | BP-900602 Banca Prova S.A. | financial_services · 50-249 | 30 | Tier 2 | Tier 2 | – | **Tier 2** | TIER_INDUSTRY_OTHER_NAMED, TIER_SIZE_50_249 |
+| T-02 Upper threshold (50, inclusive) | BP-900603 Sondeos Prova S.L. | market_research · 11-49 | 45 | Tier 2 | Tier 2 | – | **Tier 2** | TIER_INDUSTRY_CORE, TIER_SIZE_11_49 |
+|  | BP-900604 Panel Prova S.L. | panel_sample_provider · 50-249 | 50 | Tier 1 | Tier 1 | – | **Tier 1** | TIER_INDUSTRY_CORE, TIER_SIZE_50_249 |
+|  | BP-900605 UX Prova SAS | ux_research_agency · 1000_plus | 50 | Tier 1 | Tier 1 | – | **Tier 1** | TIER_INDUSTRY_ADJACENT, TIER_SIZE_1000_PLUS |
+| T-03 Industry 'other' never passes tier 3 | BP-900606 Outros Teste Lda. | other · 1000_plus | 20 | Tier 3 | Tier 3 | – | **Tier 3** | TIER_INDUSTRY_OTHER, TIER_SIZE_1000_PLUS |
+| T-04 Unknown industry gives an unknown tier | BP-900607 Sem Setor Lda. | unknown · 250-999 | – | unknown | unknown | – | **unknown** | TIER_UNKNOWN_INDUSTRY |
+| T-05 Unknown employee band gives an unknown tier | BP-900608 Sans Taille SAS | market_research · unknown | – | unknown | unknown | – | **unknown** | TIER_UNKNOWN_SIZE |
+| T-06 Group roll-up raises small subsidiaries | BP-900609 Grupo Prova S.A. | market_research · 1000_plus | 60 | Tier 1 | Tier 1 | – | **Tier 1** | TIER_INDUSTRY_CORE, TIER_SIZE_1000_PLUS |
+|  | BP-900610 Prova Retail S.L. (under BP-900609) | retail_ecommerce · 11-49 | 25 | Tier 3 | Tier 1 | – | **Tier 1** | TIER_INDUSTRY_OTHER_NAMED, TIER_SIZE_11_49, TIER_GROUP_ROLLUP |
+|  | BP-900611 Prova UX Lda. (under BP-900609) | ux_research_agency · 250-999 | 45 | Tier 2 | Tier 1 | – | **Tier 1** | TIER_INDUSTRY_ADJACENT, TIER_SIZE_250_999, TIER_GROUP_ROLLUP |
+|  | BP-900612 Prova Lisboa Lda. (under BP-900611) | other · 1-10 | 0 | Tier 3 | Tier 1 | – | **Tier 1** | TIER_INDUSTRY_OTHER, TIER_SIZE_1_10, TIER_GROUP_ROLLUP |
+| T-07 A partner with an unknown tier stays unknown (G9) | BP-900613 Holding Teste SGPS | unknown · unknown | – | unknown | unknown | – | **unknown** | TIER_UNKNOWN_INDUSTRY, TIER_UNKNOWN_SIZE |
+|  | BP-900614 Teste Norte Lda. (under BP-900613) | other · 11-49 | 5 | Tier 3 | Tier 3 | – | **Tier 3** | TIER_INDUSTRY_OTHER, TIER_SIZE_11_49 |
+|  | BP-900615 Teste Sul Lda. (under BP-900613) | unknown · 50-249 | – | unknown | unknown | – | **unknown** | TIER_UNKNOWN_INDUSTRY |
+| T-08 A Sales Director override, upwards and downwards | BP-900616 Analytics Prova S.L. | research_technology · 11-49 | 35 | Tier 2 | Tier 2 | Tier 1 | **Tier 1** | TIER_INDUSTRY_ADJACENT, TIER_SIZE_11_49, TIER_OVERRIDE |
+|  | BP-900617 Grupo Ensaio S.A. | market_research · 1000_plus | 60 | Tier 1 | Tier 1 | – | **Tier 1** | TIER_INDUSTRY_CORE, TIER_SIZE_1000_PLUS |
+|  | BP-900618 Ensaio Dormente Lda. (under BP-900617) | market_research · 50-249 | 50 | Tier 1 | Tier 1 | Tier 3 | **Tier 3** | TIER_INDUSTRY_CORE, TIER_SIZE_50_249, TIER_OVERRIDE |
+| T-09 Recalculation after the employee band changes | BP-900619 Comercio Prova S.L. | retail_ecommerce · 250-999 | 35 | Tier 2 | Tier 2 | – | **Tier 2** | TIER_INDUSTRY_OTHER_NAMED, TIER_SIZE_250_999 |
+| T-10 Successor links are not a group; leaving a group lowers the group tier | BP-900620 Absorbente Prova S.A. | market_research · 1000_plus | 60 | Tier 1 | Tier 1 | – | **Tier 1** | TIER_INDUSTRY_CORE, TIER_SIZE_1000_PLUS |
+|  | BP-900621 Absorbida Prova S.L. | consumer_goods · 1-10 | 20 | Tier 3 | Tier 3 | – | **Tier 3** | TIER_INDUSTRY_OTHER_NAMED, TIER_SIZE_1_10 |
+|  | BP-900622 Ex-Filial Prova S.L. | consumer_goods · 11-49 | 25 | Tier 3 | Tier 3 | – | **Tier 3** | TIER_INDUSTRY_OTHER_NAMED, TIER_SIZE_11_49 |
+
+**Why, case by case**
+
+- **T-01** Other named industry is 20 points: 20 + 5 = 25 is tier 3; 20 + 10 = 30 reaches tier 2 (30 counts).
+- **T-02** Core research is 40 points: 40 + 5 = 45 is tier 2, 40 + 10 = 50 is tier 1; research-adjacent 30 + 20 = 50 is tier 1.
+- **T-03** 0 + 20 = 20: even a very large company stays tier 3 when its industry is 'other'.
+- **T-04** No tier is guessed: score empty, reason TIER_UNKNOWN_INDUSTRY; C02 also fails for a customer.
+- **T-05** Even with 40 industry points the tier stays unknown: reason TIER_UNKNOWN_SIZE.
+- **T-06** The mother company is tier 1 (60), so every member of the group, including the grandchild, gets group tier 1 and effective tier 1; their own calculated tiers are kept.
+- **T-07** Only Teste Norte has a known tier (tier 3), so its group tier is tier 3. The holding and Teste Sul keep group and effective tier unknown until their own industry and employee band are known (G9, rules v1.5).
+- **T-08** BP-900616 (calculated tier 2, 35) is raised to tier 1 by request RQ-900616, approved by the Sales Director; BP-900618 (group tier 1) is lowered to tier 3 because it no longer trades. Calculated and group tiers are kept beside the override; both count in KPI12. RQ-900616 override_customer_tier raised by AE-ES-01, approved by the Sales Director (four-eyes); RQ-900618 override_customer_tier raised by AE-PT-01, approved by the Sales Director.
+- **T-09** An approved change_low_risk request moves the band from 11-49 (25, tier 3) to 250-999 (35, tier 2): the tier is recalculated at once and the change is recorded with the request as lineage. Before: band 11-49, score 25, tier 3; RQ-900619 change_low_risk employee_band 11-49 → 250-999, approved by the steward; After: score 35, tier 2.
+- **T-10** BP-900621 was absorbed by BP-900620 (successor_of): that link is not a hierarchy link, so BP-900621 keeps its own tier 3. BP-900622's subsidiary_of link to BP-900620 was closed on 1 Nov 2026: from then its group tier is its own tier 3. Both stay tier 3 with no TIER_GROUP_ROLLUP.
