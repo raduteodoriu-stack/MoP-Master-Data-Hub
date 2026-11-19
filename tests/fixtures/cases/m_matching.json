@@ -1,0 +1,998 @@
+{
+  "batch": "M",
+  "title": "Matching",
+  "rules_version": "MDH-RULES-v1.3",
+  "status": "reviewed",
+  "name_standardisation": "Upper case, accents removed, punctuation removed, legal forms (SL, SLU, SA, SAU, SCOOP, LDA, UNIPESSOAL, SAS, SASU, SARL, EURL) removed, spaces collapsed",
+  "similarity": "difflib.SequenceMatcher ratio on the standardised names, rounded to 3 decimals (G1)",
+  "cases": [
+    {
+      "id": "M-01",
+      "purpose": "M1: duplicate inside one system",
+      "pattern": "",
+      "records": [
+        {
+          "system": "crm",
+          "source_key": "C-300101",
+          "name": "Mercats Test S.L.",
+          "name_std": "MERCATS TEST",
+          "country": "ES",
+          "tax_id": "B27164532",
+          "web_domain": "mercats-test.example",
+          "city": "Barcelona"
+        },
+        {
+          "system": "crm",
+          "source_key": "C-300102",
+          "name": "MERCATS TEST, SL",
+          "name_std": "MERCATS TEST",
+          "country": "ES",
+          "tax_id": "B27164532",
+          "city": "Barcelona"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "crm C-300101",
+          "b": "crm C-300102",
+          "name_similarity": 1.0,
+          "expected_rule": "M1",
+          "expected_outcome": "auto_link",
+          "why": "Same valid NIF, names equal after standardisation"
+        }
+      ],
+      "steward_decision": null,
+      "expected_partners": [
+        [
+          "crm C-300101",
+          "crm C-300102"
+        ]
+      ],
+      "note": ""
+    },
+    {
+      "id": "M-02",
+      "purpose": "M1: the same company in two systems",
+      "pattern": "",
+      "records": [
+        {
+          "system": "crm",
+          "source_key": "C-300201",
+          "name": "Opiniões Teste Lda.",
+          "name_std": "OPINIOES TESTE",
+          "country": "PT",
+          "tax_id": "517349060",
+          "web_domain": "opinioes-teste.example"
+        },
+        {
+          "system": "erp",
+          "source_key": "E-300201",
+          "name": "OPINIOES TESTE LDA",
+          "name_std": "OPINIOES TESTE",
+          "country": "PT",
+          "tax_id": "517349060"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "crm C-300201",
+          "b": "erp E-300201",
+          "name_similarity": 1.0,
+          "expected_rule": "M1",
+          "expected_outcome": "auto_link",
+          "why": "Same valid NIPC, names equal after standardisation"
+        }
+      ],
+      "steward_decision": null,
+      "expected_partners": [
+        [
+          "crm C-300201",
+          "erp E-300201"
+        ]
+      ],
+      "note": ""
+    },
+    {
+      "id": "M-03",
+      "purpose": "M1: a customer that is also a supplier becomes one partner with two roles",
+      "pattern": "",
+      "records": [
+        {
+          "system": "erp",
+          "source_key": "E-300301",
+          "name": "Études Essai SAS",
+          "name_std": "ETUDES ESSAI",
+          "country": "FR",
+          "tax_id": "812436053",
+          "role_hint": "customer"
+        },
+        {
+          "system": "procurement_sheet",
+          "source_key": "P-300301",
+          "name": "Etudes Essai",
+          "name_std": "ETUDES ESSAI",
+          "country": "FR",
+          "tax_id": "812436053",
+          "role_hint": "supplier"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "erp E-300301",
+          "b": "procurement_sheet P-300301",
+          "name_similarity": 1.0,
+          "expected_rule": "M1",
+          "expected_outcome": "auto_link",
+          "why": "Same valid SIREN, names equal after standardisation"
+        }
+      ],
+      "steward_decision": null,
+      "expected_partners": [
+        [
+          "erp E-300301",
+          "procurement_sheet P-300301"
+        ]
+      ],
+      "note": "One partner with a customer role and a supplier role"
+    },
+    {
+      "id": "M-04",
+      "purpose": "M1 and M1B either side of the 0.90 name threshold",
+      "pattern": "",
+      "records": [
+        {
+          "system": "erp",
+          "source_key": "E-300401",
+          "name": "Cifras Norte S.L.",
+          "name_std": "CIFRAS NORTE",
+          "country": "ES",
+          "tax_id": "B44730216"
+        },
+        {
+          "system": "crm",
+          "source_key": "C-300401",
+          "name": "Cifra Norte S.L.",
+          "name_std": "CIFRA NORTE",
+          "country": "ES",
+          "tax_id": "B44730216"
+        },
+        {
+          "system": "erp",
+          "source_key": "E-300402",
+          "name": "Muestra Clara S.L.",
+          "name_std": "MUESTRA CLARA",
+          "country": "ES",
+          "tax_id": "B66201948"
+        },
+        {
+          "system": "crm",
+          "source_key": "C-300402",
+          "name": "Muestra Claris",
+          "name_std": "MUESTRA CLARIS",
+          "country": "ES",
+          "tax_id": "B66201948"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "erp E-300401",
+          "b": "crm C-300401",
+          "name_similarity": 0.957,
+          "expected_rule": "M1",
+          "expected_outcome": "auto_link",
+          "why": "Same NIF, similarity 0.957 (at least 0.90)"
+        },
+        {
+          "a": "erp E-300402",
+          "b": "crm C-300402",
+          "name_similarity": 0.889,
+          "expected_rule": "M1B",
+          "expected_outcome": "suggestion: tax_conflict",
+          "why": "Same NIF, similarity 0.889 (below 0.90)"
+        }
+      ],
+      "steward_decision": "M1B pair confirmed: a typo of the same company",
+      "expected_partners": [
+        [
+          "erp E-300401",
+          "crm C-300401"
+        ],
+        [
+          "erp E-300402",
+          "crm C-300402"
+        ]
+      ],
+      "note": ""
+    },
+    {
+      "id": "M-05",
+      "purpose": "M1B confirmed: a trading name of the same legal entity",
+      "pattern": "",
+      "records": [
+        {
+          "system": "erp",
+          "source_key": "E-300501",
+          "name": "Grupo Ensayo S.A.",
+          "name_std": "GRUPO ENSAYO",
+          "country": "ES",
+          "tax_id": "A55204176",
+          "web_domain": "grupo-ensayo.example",
+          "city": "Madrid"
+        },
+        {
+          "system": "crm",
+          "source_key": "C-300501",
+          "name": "Grupo Ensayo Iberia",
+          "name_std": "GRUPO ENSAYO IBERIA",
+          "country": "ES",
+          "tax_id": "A55204176",
+          "web_domain": "grupo-ensayo.example",
+          "city": "Madrid"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "erp E-300501",
+          "b": "crm C-300501",
+          "name_similarity": 0.774,
+          "expected_rule": "M1B",
+          "expected_outcome": "suggestion: tax_conflict",
+          "why": "Same NIF, similarity 0.774"
+        }
+      ],
+      "steward_decision": "Confirmed: 'Grupo Ensayo Iberia' is a trading name; kept as trading name on the partner",
+      "expected_partners": [
+        [
+          "erp E-300501",
+          "crm C-300501"
+        ]
+      ],
+      "note": ""
+    },
+    {
+      "id": "M-06",
+      "purpose": "M1B rejected: a subsidiary carrying its mother company's tax ID",
+      "pattern": "1: subsidiary with the mother's tax ID",
+      "records": [
+        {
+          "system": "erp",
+          "source_key": "E-300601",
+          "name": "Grupo Ensayo S.A.",
+          "name_std": "GRUPO ENSAYO",
+          "country": "ES",
+          "tax_id": "A55204176",
+          "web_domain": "grupo-ensayo.example",
+          "city": "Madrid"
+        },
+        {
+          "system": "crm",
+          "source_key": "C-300601",
+          "name": "Ensayo Portugal",
+          "name_std": "ENSAYO PORTUGAL",
+          "country": "PT",
+          "tax_id": "A55204176",
+          "web_domain": "grupo-ensayo.example",
+          "city": "Lisboa"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "erp E-300601",
+          "b": "crm C-300601",
+          "name_similarity": 0.444,
+          "expected_rule": "M1B",
+          "expected_outcome": "suggestion: tax_conflict",
+          "why": "Same NIF, similarity 0.444; an M1-only rule would have merged them"
+        }
+      ],
+      "steward_decision": "Rejected: different legal entities",
+      "expected_partners": [
+        [
+          "erp E-300601"
+        ],
+        [
+          "crm C-300601"
+        ]
+      ],
+      "note": "C-300601 fails K09 (its NIF belongs to the mother company's partner) and K01 (Spanish NIF on a Portuguese record); both are reported to the CRM owner"
+    },
+    {
+      "id": "M-07",
+      "purpose": "An invalid tax ID is ignored for matching",
+      "pattern": "",
+      "records": [
+        {
+          "system": "crm",
+          "source_key": "C-300701",
+          "name": "Cifras Norte",
+          "name_std": "CIFRAS NORTE",
+          "country": "ES",
+          "tax_id": "B44730219",
+          "phone": "+34944000001",
+          "city": "Bilbao"
+        },
+        {
+          "system": "support",
+          "source_key": "S-300701",
+          "name": "Cifras Norte S.L.",
+          "name_std": "CIFRAS NORTE",
+          "country": "ES",
+          "tax_id": "B44730219",
+          "phone": "+34944000001",
+          "city": "Bilbao"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "crm C-300701",
+          "b": "support S-300701",
+          "name_similarity": 1.0,
+          "expected_rule": "M4",
+          "expected_outcome": "suggestion: normal",
+          "why": "Same NIF but it fails V01, so it is treated as missing; similarity 1.0 and the same phone"
+        }
+      ],
+      "steward_decision": "Confirmed",
+      "expected_partners": [
+        [
+          "crm C-300701",
+          "support S-300701"
+        ]
+      ],
+      "note": "Both records fail V01. Without fix G4 they would have been linked automatically on a wrong NIF"
+    },
+    {
+      "id": "M-08",
+      "purpose": "M2: a subsidiary with its own tax ID sharing the mother's domain",
+      "pattern": "",
+      "records": [
+        {
+          "system": "erp",
+          "source_key": "E-300801",
+          "name": "Grupo Ensayo S.A.",
+          "name_std": "GRUPO ENSAYO",
+          "country": "ES",
+          "tax_id": "A55204176",
+          "web_domain": "grupo-ensayo.example"
+        },
+        {
+          "system": "erp",
+          "source_key": "E-300802",
+          "name": "Ensayo Portugal Lda.",
+          "name_std": "ENSAYO PORTUGAL",
+          "country": "PT",
+          "tax_id": "509812333",
+          "web_domain": "grupo-ensayo.example"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "erp E-300801",
+          "b": "erp E-300802",
+          "name_similarity": 0.444,
+          "expected_rule": "M2",
+          "expected_outcome": "suggestion: group",
+          "why": "Different valid tax IDs, same web domain"
+        }
+      ],
+      "steward_decision": "Group: hierarchy link Ensayo Portugal under Grupo Ensayo (batch H)",
+      "expected_partners": [
+        [
+          "erp E-300801"
+        ],
+        [
+          "erp E-300802"
+        ]
+      ],
+      "note": ""
+    },
+    {
+      "id": "M-09",
+      "purpose": "M2: a subsidiary with the same name as its mother company",
+      "pattern": "3: subsidiary with the mother's name",
+      "records": [
+        {
+          "system": "erp",
+          "source_key": "E-300901",
+          "name": "Grupo Ensayo S.A.",
+          "name_std": "GRUPO ENSAYO",
+          "country": "ES",
+          "tax_id": "A55204176",
+          "web_domain": "grupo-ensayo.example"
+        },
+        {
+          "system": "support",
+          "source_key": "S-300901",
+          "name": "Grupo Ensayo, Lda.",
+          "name_std": "GRUPO ENSAYO",
+          "country": "PT",
+          "tax_id": "510994806"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "erp E-300901",
+          "b": "support S-300901",
+          "name_similarity": 1.0,
+          "expected_rule": "M2",
+          "expected_outcome": "suggestion: group",
+          "why": "Different valid tax IDs, similarity 1.0: never the same partner"
+        }
+      ],
+      "steward_decision": "Group",
+      "expected_partners": [
+        [
+          "erp E-300901"
+        ],
+        [
+          "support S-300901"
+        ]
+      ],
+      "note": ""
+    },
+    {
+      "id": "M-10",
+      "purpose": "M3 strong suggestion, and a near miss that falls through to M4",
+      "pattern": "",
+      "records": [
+        {
+          "system": "erp",
+          "source_key": "E-301001",
+          "name": "Painel Atlântico Lda.",
+          "name_std": "PAINEL ATLANTICO",
+          "country": "PT",
+          "tax_id": "506301273",
+          "web_domain": "painel-atlantico.example",
+          "postal_code": "1000-001",
+          "city": "Lisboa"
+        },
+        {
+          "system": "crm",
+          "source_key": "C-301001",
+          "name": "Painel Atlântico",
+          "name_std": "PAINEL ATLANTICO",
+          "country": "PT",
+          "web_domain": "painel-atlantico.example",
+          "city": "Lisboa"
+        },
+        {
+          "system": "crm",
+          "source_key": "C-301002",
+          "name": "Paineis Atlanticos",
+          "name_std": "PAINEIS ATLANTICOS",
+          "country": "PT",
+          "web_domain": "painel-atlantico.example",
+          "postal_code": "1000-001",
+          "city": "Lisboa"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "erp E-301001",
+          "b": "crm C-301001",
+          "name_similarity": 1.0,
+          "expected_rule": "M3",
+          "expected_outcome": "suggestion: strong",
+          "why": "No tax ID on one side, same domain and country, similarity 1.0"
+        },
+        {
+          "a": "erp E-301001",
+          "b": "crm C-301002",
+          "name_similarity": 0.882,
+          "expected_rule": "M4",
+          "expected_outcome": "suggestion: normal",
+          "why": "Similarity 0.882 is below 0.92 and neither name starts with the other, so not M3; 0.882 and the same postal code"
+        },
+        {
+          "a": "crm C-301001",
+          "b": "crm C-301002",
+          "name_similarity": 0.882,
+          "expected_rule": "M5",
+          "expected_outcome": "suggestion: weak",
+          "why": "Similarity 0.882, same domain but below 0.92 and no prefix, no shared postal code or phone, same city (G5)"
+        }
+      ],
+      "steward_decision": "Confirmed (all three)",
+      "expected_partners": [
+        [
+          "erp E-301001",
+          "crm C-301001",
+          "crm C-301002"
+        ]
+      ],
+      "note": ""
+    },
+    {
+      "id": "M-11",
+      "purpose": "M4: same phone; and a high-similarity pair in the same city",
+      "pattern": "",
+      "records": [
+        {
+          "system": "crm",
+          "source_key": "C-301101",
+          "name": "Sondages Rivière SARL",
+          "name_std": "SONDAGES RIVIERE",
+          "country": "FR",
+          "web_domain": "sondages-riviere.example",
+          "phone": "+33140000001",
+          "postal_code": "75010",
+          "city": "Paris"
+        },
+        {
+          "system": "support",
+          "source_key": "S-301101",
+          "name": "Sondages Riviere",
+          "name_std": "SONDAGES RIVIERE",
+          "country": "FR",
+          "phone": "+33140000001",
+          "city": "Paris"
+        },
+        {
+          "system": "support",
+          "source_key": "S-301102",
+          "name": "Sondages Rivieras",
+          "name_std": "SONDAGES RIVIERAS",
+          "country": "FR",
+          "postal_code": "75011",
+          "city": "Paris"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "crm C-301101",
+          "b": "support S-301101",
+          "name_similarity": 1.0,
+          "expected_rule": "M4",
+          "expected_outcome": "suggestion: normal",
+          "why": "Support record has no domain, so not M3; similarity 1.0 and the same phone"
+        },
+        {
+          "a": "crm C-301101",
+          "b": "support S-301102",
+          "name_similarity": 0.909,
+          "expected_rule": "M5",
+          "expected_outcome": "suggestion: weak",
+          "why": "Similarity 0.909, no shared postal code or phone, same city (G5)"
+        },
+        {
+          "a": "support S-301101",
+          "b": "support S-301102",
+          "name_similarity": 0.909,
+          "expected_rule": "M5",
+          "expected_outcome": "suggestion: weak",
+          "why": "Similarity 0.909, same city; both from the support desk"
+        }
+      ],
+      "steward_decision": "S-301101 confirmed; both S-301102 pairs rejected (a different shop)",
+      "expected_partners": [
+        [
+          "crm C-301101",
+          "support S-301101"
+        ],
+        [
+          "support S-301102"
+        ]
+      ],
+      "note": ""
+    },
+    {
+      "id": "M-12",
+      "purpose": "M5 weak suggestion, and a near miss with no match",
+      "pattern": "",
+      "records": [
+        {
+          "system": "crm",
+          "source_key": "C-301201",
+          "name": "Sondages Rivière SARL",
+          "name_std": "SONDAGES RIVIERE",
+          "country": "FR",
+          "city": "Lyon",
+          "postal_code": "69002"
+        },
+        {
+          "system": "support",
+          "source_key": "S-301201",
+          "name": "Sondage Riv",
+          "name_std": "SONDAGE RIV",
+          "country": "FR",
+          "city": "Lyon"
+        },
+        {
+          "system": "support",
+          "source_key": "S-301202",
+          "name": "Sondaje Riviera Conseil",
+          "name_std": "SONDAJE RIVIERA CONSEIL",
+          "country": "FR",
+          "city": "Lyon"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "crm C-301201",
+          "b": "support S-301201",
+          "name_similarity": 0.815,
+          "expected_rule": "M5",
+          "expected_outcome": "suggestion: weak",
+          "why": "Similarity 0.815 (0.75 or more) and the same city"
+        },
+        {
+          "a": "crm C-301201",
+          "b": "support S-301202",
+          "name_similarity": 0.718,
+          "expected_rule": null,
+          "expected_outcome": "no match",
+          "why": "Similarity 0.718 is below 0.75"
+        }
+      ],
+      "steward_decision": "S-301201 confirmed",
+      "expected_partners": [
+        [
+          "crm C-301201",
+          "support S-301201"
+        ],
+        [
+          "support S-301202"
+        ]
+      ],
+      "note": ""
+    },
+    {
+      "id": "M-13",
+      "purpose": "M6: two unrelated suppliers with the same IBAN",
+      "pattern": "",
+      "records": [
+        {
+          "system": "erp",
+          "source_key": "E-301301",
+          "name": "Paneles Prueba S.L.",
+          "name_std": "PANELES PRUEBA",
+          "country": "ES",
+          "tax_id": "B31488208",
+          "iban": "ES2299990003000555666777",
+          "role_hint": "supplier"
+        },
+        {
+          "system": "procurement_sheet",
+          "source_key": "P-301301",
+          "name": "Logiciels Essai SAS",
+          "name_std": "LOGICIELS ESSAI",
+          "country": "FR",
+          "tax_id": "793155201",
+          "iban": "ES2299990003000555666777",
+          "role_hint": "supplier"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "erp E-301301",
+          "b": "procurement_sheet P-301301",
+          "name_similarity": 0.345,
+          "expected_rule": "M6",
+          "expected_outcome": "suggestion: bank_risk",
+          "why": "M2 says they are never the same partner, but the shared IBAN is still flagged (G2)"
+        }
+      ],
+      "steward_decision": "Bank-risk review: the procurement sheet IBAN was typed from the wrong supplier; corrected by a bank-details request",
+      "expected_partners": [
+        [
+          "erp E-301301"
+        ],
+        [
+          "procurement_sheet P-301301"
+        ]
+      ],
+      "note": "Both also fail U03"
+    },
+    {
+      "id": "M-14",
+      "purpose": "One company spelled three ways in three systems",
+      "pattern": "2: different spellings",
+      "records": [
+        {
+          "system": "crm",
+          "source_key": "C-301401",
+          "name": "Inqueritos Douro",
+          "name_std": "INQUERITOS DOURO",
+          "country": "PT",
+          "web_domain": "inqueritos-douro.example",
+          "city": "Porto"
+        },
+        {
+          "system": "support",
+          "source_key": "S-301401",
+          "name": "Inquéritos do Douro",
+          "name_std": "INQUERITOS DO DOURO",
+          "country": "PT",
+          "phone": "+351220000001",
+          "city": "Porto"
+        },
+        {
+          "system": "erp",
+          "source_key": "E-301401",
+          "name": "Inquéritos Douro Lda.",
+          "name_std": "INQUERITOS DOURO",
+          "country": "PT",
+          "tax_id": "513220194",
+          "web_domain": "inqueritos-douro.example",
+          "phone": "+351220000001",
+          "city": "Porto"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "crm C-301401",
+          "b": "erp E-301401",
+          "name_similarity": 1.0,
+          "expected_rule": "M3",
+          "expected_outcome": "suggestion: strong",
+          "why": "Same domain and country, similarity 1.0"
+        },
+        {
+          "a": "support S-301401",
+          "b": "erp E-301401",
+          "name_similarity": 0.914,
+          "expected_rule": "M4",
+          "expected_outcome": "suggestion: normal",
+          "why": "Similarity 0.914 and the same phone"
+        },
+        {
+          "a": "crm C-301401",
+          "b": "support S-301401",
+          "name_similarity": 0.914,
+          "expected_rule": "M5",
+          "expected_outcome": "suggestion: weak",
+          "why": "Similarity 0.914, same city, nothing else shared (G5)"
+        }
+      ],
+      "steward_decision": "All confirmed",
+      "expected_partners": [
+        [
+          "crm C-301401",
+          "support S-301401",
+          "erp E-301401"
+        ]
+      ],
+      "note": ""
+    },
+    {
+      "id": "M-15",
+      "purpose": "One company with a CRM account per office (identical names)",
+      "pattern": "4: one account per office",
+      "records": [
+        {
+          "system": "crm",
+          "source_key": "C-301501",
+          "name": "Estudios Faro S.L.",
+          "name_std": "ESTUDIOS FARO",
+          "country": "ES",
+          "web_domain": "estudios-faro.example",
+          "city": "Barcelona",
+          "postal_code": "08002"
+        },
+        {
+          "system": "crm",
+          "source_key": "C-301502",
+          "name": "Estudios Faro",
+          "name_std": "ESTUDIOS FARO",
+          "country": "ES",
+          "web_domain": "estudios-faro.example",
+          "city": "Madrid",
+          "postal_code": "28010"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "crm C-301501",
+          "b": "crm C-301502",
+          "name_similarity": 1.0,
+          "expected_rule": "M3",
+          "expected_outcome": "suggestion: strong",
+          "why": "Same domain and country, similarity 1.0"
+        }
+      ],
+      "steward_decision": "Confirmed: one partner; the Madrid office becomes a branch address",
+      "expected_partners": [
+        [
+          "crm C-301501",
+          "crm C-301502"
+        ]
+      ],
+      "note": ""
+    },
+    {
+      "id": "M-16",
+      "purpose": "Office or subsidiary named after the company plus a suffix",
+      "pattern": "4 and 3",
+      "records": [
+        {
+          "system": "erp",
+          "source_key": "E-301601",
+          "name": "Estudios Faro S.L.",
+          "name_std": "ESTUDIOS FARO",
+          "country": "ES",
+          "tax_id": "B70583166",
+          "web_domain": "estudios-faro.example",
+          "city": "Barcelona"
+        },
+        {
+          "system": "crm",
+          "source_key": "C-301601",
+          "name": "Estudios Faro Madrid",
+          "name_std": "ESTUDIOS FARO MADRID",
+          "country": "ES",
+          "web_domain": "estudios-faro.example",
+          "city": "Madrid"
+        },
+        {
+          "system": "erp",
+          "source_key": "E-301602",
+          "name": "Grupo Ensayo S.A.",
+          "name_std": "GRUPO ENSAYO",
+          "country": "ES",
+          "tax_id": "A55204176",
+          "web_domain": "grupo-ensayo.example",
+          "city": "Madrid"
+        },
+        {
+          "system": "crm",
+          "source_key": "C-301602",
+          "name": "Grupo Ensayo Servicios",
+          "name_std": "GRUPO ENSAYO SERVICIOS",
+          "country": "ES",
+          "web_domain": "grupo-ensayo.example",
+          "city": "Sevilla"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "erp E-301601",
+          "b": "crm C-301601",
+          "name_similarity": 0.788,
+          "expected_rule": "M3",
+          "expected_outcome": "suggestion: strong",
+          "why": "Similarity 0.788, but one standardised name starts with the other, same domain and country (G3)"
+        },
+        {
+          "a": "erp E-301602",
+          "b": "crm C-301602",
+          "name_similarity": 0.706,
+          "expected_rule": "M3",
+          "expected_outcome": "suggestion: strong",
+          "why": "Same as above: 'GRUPO ENSAYO' starts 'GRUPO ENSAYO SERVICIOS' (G3)"
+        }
+      ],
+      "steward_decision": "C-301601 confirmed (the Madrid office); C-301602 marked group (a separate Spanish subsidiary with no tax ID yet)",
+      "expected_partners": [
+        [
+          "erp E-301601",
+          "crm C-301601"
+        ],
+        [
+          "erp E-301602"
+        ],
+        [
+          "crm C-301602"
+        ]
+      ],
+      "note": ""
+    },
+    {
+      "id": "M-17",
+      "purpose": "A chain: A~B and B~C, but not A~C",
+      "pattern": "",
+      "records": [
+        {
+          "system": "erp",
+          "source_key": "E-301701",
+          "name": "Estudios Faro S.L.",
+          "name_std": "ESTUDIOS FARO",
+          "country": "ES",
+          "tax_id": "B70583166",
+          "web_domain": "estudios-faro.example",
+          "city": "Barcelona"
+        },
+        {
+          "system": "crm",
+          "source_key": "C-301701",
+          "name": "Estudios Faro Madrid",
+          "name_std": "ESTUDIOS FARO MADRID",
+          "country": "ES",
+          "web_domain": "estudios-faro.example",
+          "phone": "+34910000001",
+          "city": "Madrid"
+        },
+        {
+          "system": "support",
+          "source_key": "S-301701",
+          "name": "Estudios Faro Madrid",
+          "name_std": "ESTUDIOS FARO MADRID",
+          "country": "ES",
+          "phone": "+34910000001",
+          "city": "Madrid"
+        }
+      ],
+      "pairs": [
+        {
+          "a": "erp E-301701",
+          "b": "crm C-301701",
+          "name_similarity": 0.788,
+          "expected_rule": "M3",
+          "expected_outcome": "suggestion: strong",
+          "why": "One name starts with the other, same domain and country (G3)"
+        },
+        {
+          "a": "crm C-301701",
+          "b": "support S-301701",
+          "name_similarity": 1.0,
+          "expected_rule": "M4",
+          "expected_outcome": "suggestion: normal",
+          "why": "Similarity 1.0 and the same phone"
+        },
+        {
+          "a": "erp E-301701",
+          "b": "support S-301701",
+          "name_similarity": 0.788,
+          "expected_rule": null,
+          "expected_outcome": "no match",
+          "why": "Support has no domain; similarity 0.788 below 0.85; different cities"
+        }
+      ],
+      "steward_decision": "Both confirmed; the three records end in one partner only through the two confirmed links",
+      "expected_partners": [
+        [
+          "erp E-301701",
+          "crm C-301701",
+          "support S-301701"
+        ]
+      ],
+      "note": "The engine never links A and C on its own: chains are decided pair by pair"
+    },
+    {
+      "id": "M-18",
+      "purpose": "A rejected pair is not suggested again until a record changes",
+      "pattern": "",
+      "records": [
+        {
+          "system": "crm",
+          "source_key": "C-301801",
+          "name": "Sondages Rivière SARL",
+          "name_std": "SONDAGES RIVIERE",
+          "country": "FR",
+          "phone": "+33140000099",
+          "city": "Paris",
+          "record_version": 1
+        },
+        {
+          "system": "support",
+          "source_key": "S-301801",
+          "name": "Sondages Riviere",
+          "name_std": "SONDAGES RIVIERE",
+          "country": "FR",
+          "phone": "+33140000099",
+          "city": "Paris",
+          "record_version": 1
+        }
+      ],
+      "pairs": [
+        {
+          "a": "crm C-301801",
+          "b": "support S-301801",
+          "name_similarity": 1.0,
+          "expected_rule": "M4",
+          "expected_outcome": "suggestion: normal",
+          "why": "Similarity 1.0 and the same phone"
+        }
+      ],
+      "steward_decision": "Rejected. Next run with the same versions: no new suggestion. Support sends version 2 (new address): suggested again",
+      "expected_partners": [
+        [
+          "crm C-301801"
+        ],
+        [
+          "support S-301801"
+        ]
+      ],
+      "note": ""
+    }
+  ]
+}

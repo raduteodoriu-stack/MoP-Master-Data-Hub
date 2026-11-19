@@ -3,12 +3,18 @@
 Tables, relationships, history and integrity rules of the MoP Master Data Hub database.
 Every column is described in [data_dictionary.md](data_dictionary.md). The rules this database
 supports are in [data_standards.md](data_standards.md), [quality_rules.md](quality_rules.md)
-and [`rules/MDH-RULES-v1.2.json`](../rules/MDH-RULES-v1.2.json).
+and [`rules/MDH-RULES-v1.3.json`](../rules/MDH-RULES-v1.3.json).
 
 **Status:** implemented and tested. `SQL/001_create_schema.sql` creates the 25 tables and the
 rules below, `SQL/002_working_minutes.sql` adds the working-time function, `SQL/003_rules_v1_2.sql`
 allows the M1B suggestion (rules v1.2), and `SQL/tests/`
 holds 13 test files that prove each rule refuses bad data (see [How to run the tests](#how-to-run-the-tests)).
+
+**Pending for rules v1.3:** migration `SQL/004_rules_v1_3.sql` (block reasons `insolvency` and
+`absorbed`, the `successor_of` link, contact status and last verification, VIES status, payee type
+and holder-name outcome, supplier last activity, registry and HR reference tables, suppression
+list). It is written after batch C of the MDH-004 cases is reviewed, so the tables follow the
+agreed cases.
 
 ## Design approach
 
