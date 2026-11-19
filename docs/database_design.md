@@ -10,11 +10,12 @@ rules below, `SQL/002_working_minutes.sql` adds the working-time function, `SQL/
 allows the M1B suggestion (rules v1.2), and `SQL/tests/`
 holds 13 test files that prove each rule refuses bad data (see [How to run the tests](#how-to-run-the-tests)).
 
-**Pending for rules v1.3:** migration `SQL/004_rules_v1_3.sql` (block reasons `insolvency` and
-`absorbed`, the `successor_of` link, contact status and last verification, VIES status, payee type
-and holder-name outcome, supplier last activity, registry and HR reference tables, suppression
-list). It is written after batch C of the MDH-004 cases is reviewed, so the tables follow the
-agreed cases.
+**Rules v1.3 (migration `SQL/004_rules_v1_3.sql`):** block reasons `insolvency` and `absorbed`,
+the `successor_of` link, contact status with last verification and last contact, VIES status,
+supplier last activity, payee type and holder-name outcome, the registry and HR reference
+extracts, rule exceptions, the suppression list and the `hub.partner_names` view. Integrity
+rules I21–I24 below; test file `014_test_rules_v1_3.sql`. The database now has 29 tables and
+one view.
 
 ## Design approach
 
@@ -84,6 +85,11 @@ dbt adds a `reporting` schema in MDH-009.
 | governance | `request_approvals` | One approval decision |
 | governance | `request_evidence` | One piece of evidence (reference and checksum only) |
 | governance | `erasure_proofs` | One completed erasure of a contact person |
+| source | `registry_entries` | One company's status in one registry extract (simulated; v1.3) |
+| source | `hr_employees` | One employee in one synthetic HR extract, for the employee–supplier match (v1.3) |
+| governance | `rule_exceptions` | One approved exception to a rule for one partner, for a period: K03 exceptions, K10 clearances (v1.3) |
+| governance | `suppression_list` | One erased or opted-out email, kept only as a hash (v1.3) |
+| hub | `partner_names` (view) | Current and former names of each partner, for matching (v1.3) |
 
 ## Main relationships
 
@@ -182,7 +188,9 @@ One database function, `governance.erase_contact()`, does the whole erasure in o
 2. Replaces the person's fields with a marker in every stored source record version that holds
    them, and sets `redacted_at` and `redaction_request_id`. This is the only path allowed to
    change a source record (I02).
-3. Writes an `erasure_proofs` row: request, contact ID, partner, number of versions redacted and
+3. Adds the SHA-256 of the lower-cased email to `governance.suppression_list` (rules v1.3), so the
+   person cannot be stored again as a contact (I21).
+4. Writes an `erasure_proofs` row: request, contact ID, partner, number of versions redacted and
    systems affected. It holds none of the erased data.
 
 The content hash of each redacted version is kept, so loading an old extract again cannot bring
@@ -207,13 +215,17 @@ the DPO.
 | I11 | A block has a reason, an approver and a time, or none of them | CHECK `num_nulls(...) IN (0, 3)` on both role tables (rule K07) |
 | I12 | One parent at a time, never itself, no loop, at most five levels | `EXCLUDE` on overlapping periods; CHECK; trigger with a recursive query (rule K05) |
 | I13 | One current bank account per supplier; verification date, method and verifier filled together | `EXCLUDE` on overlapping periods; CHECK; FK to `supplier_roles` |
-| I14 | An erased contact has no personal data and has an erasure time; an active one has a name and a work email | CHECK |
+| I14 | An erased contact has no personal data and has an erasure time; any other contact (active, left the company, bouncing) has a name and a work email | CHECK |
 | I15 | History tables are append-only | Trigger refusing UPDATE and DELETE on `field_history`, `request_status_history`, `request_approvals`, `merge_events`, `quality_results`, `erasure_proofs` |
 | I16 | Every field-history row names its lineage | CHECK `num_nonnulls(source_record_id, request_id, merge_event_id) >= 1` |
 | I17 | A suggestion stores its pair in a fixed order; at most one open suggestion per pair; a decided one has a decider and a time | CHECK on row order; partial unique index; CHECK |
 | I18 | Nobody approves a request they raised | Composite FK (request, requester) from `request_approvals` to `change_requests`; CHECK approver ≠ requester |
 | I19 | A person holds the same role in non-overlapping periods only | `EXCLUDE` on `staff_roles` |
 | I20 | Every quality result, link, suggestion, merge and field change names a loaded rules version | FK to `config.rule_versions` |
+| I21 | A person on the suppression list cannot be stored again as a contact, in any letter case (rule U04) | Trigger comparing the SHA-256 of the lower-cased email; the erasure function adds the hash |
+| I22 | Bank details paid to a factoring company or alternative payee have an assignment letter; own-account details have none | CHECK |
+| I23 | VIES status, check date and evidence are filled together | CHECK `num_nulls(...) IN (0, 3)` |
+| I24 | One successor at a time; the successor is active and has not itself been absorbed; successor links do not count in the hierarchy (I12) | `EXCLUDE` on child, link type and period; trigger |
 
 ## Access rules
 
@@ -222,6 +234,10 @@ the DPO.
 | A01 | `mdh_reporting` can read `config`, `hub` and `governance`, and cannot read `source` or write anywhere | Schema `USAGE` and `SELECT` grants only; no grant on `source` |
 | A02 | `mdh_reporting` cannot read personal or bank details, including inside JSON columns | Column-level grants: `hub.contact_persons` without names, email and role; `hub.bank_accounts` without IBAN and holder name; `change_requests` without `proposed_values`, `match_suggestions` without `compared_values`, `quality_results` without `details` |
 | A03 | `mdh_reporting` cannot read the history of personal or bank fields | Row-level security on `hub.field_history` hiding rows for `iban` and `account_holder_name` |
+
+Rules v1.3 keeps the same principle: the registry and HR extracts sit in `source`, so reporting
+cannot read them (A01); the suppression list has no reporting grant; reporting sees payee type,
+holder-match outcome and contact dates, but not exception details.
 
 Reports count bank accounts and contacts and show their quality, but never the details. That is
 the GDPR principle of data minimisation applied to reporting. `mdh_reporting` is a role without
@@ -283,6 +299,7 @@ back at the end. The summary shows each file with its number of checks, and a lo
 | `011_test_erasure.sql` | Erasure of a contact person end to end (I02, I14, I15) |
 | `012_test_access.sql` | Reporting role (A01–A03) |
 | `013_test_working_minutes.sql` | Working-time function |
+| `014_test_rules_v1_3.sql` | Rules v1.3 fields, extracts, exceptions, suppression list, names view (I14, I21–I24, A01) |
 
 ## Decisions taken in review
 

@@ -24,12 +24,12 @@ I07 refer to its integrity rules, and IDs such as V01 or K05 to the quality rule
 | `source` | [`load_batches`](#sourceload_batches) | 10 |
 | `source` | [`source_records`](#sourcesource_records) | 12 |
 | `source` | [`standardised_records`](#sourcestandardised_records) | 14 |
-| `hub` | [`business_partners`](#hubbusiness_partners) | 15 |
+| `hub` | [`business_partners`](#hubbusiness_partners) | 18 |
 | `hub` | [`customer_roles`](#hubcustomer_roles) | 22 |
-| `hub` | [`supplier_roles`](#hubsupplier_roles) | 13 |
+| `hub` | [`supplier_roles`](#hubsupplier_roles) | 14 |
 | `hub` | [`addresses`](#hubaddresses) | 10 |
-| `hub` | [`bank_accounts`](#hubbank_accounts) | 10 |
-| `hub` | [`contact_persons`](#hubcontact_persons) | 11 |
+| `hub` | [`bank_accounts`](#hubbank_accounts) | 13 |
+| `hub` | [`contact_persons`](#hubcontact_persons) | 13 |
 | `hub` | [`partner_relationships`](#hubpartner_relationships) | 6 |
 | `hub` | [`source_links`](#hubsource_links) | 10 |
 | `hub` | [`field_history`](#hubfield_history) | 13 |
@@ -42,6 +42,11 @@ I07 refer to its integrity rules, and IDs such as V01 or K05 to the quality rule
 | `governance` | [`request_approvals`](#governancerequest_approvals) | 8 |
 | `governance` | [`request_evidence`](#governancerequest_evidence) | 7 |
 | `governance` | [`erasure_proofs`](#governanceerasure_proofs) | 8 |
+| `source` | [`registry_entries`](#sourceregistry_entries) | 9 |
+| `source` | [`hr_employees`](#sourcehr_employees) | 8 |
+| `governance` | [`rule_exceptions`](#governancerule_exceptions) | 8 |
+| `governance` | [`suppression_list`](#governancesuppression_list) | 4 |
+| `hub` | [`partner_names`](#hubpartner_names-view) (view) | 4 |
 
 ## Schema `config`
 
@@ -172,6 +177,9 @@ One golden business partner: the general data shared by every role. Never delete
 | `web_domain` | text | yes |  | Registrable domain, lower case (I09) |
 | `phone` | text | yes |  | International format (I09) |
 | `last_reviewed_at` | timestamptz | yes |  | Last full review by the steward (rule T01, 12 months) |
+| `vies_status` | text | yes |  | `valid`, `not_registered` or `invalid`, from a simulated VIES check; for partners registered outside Spain (V13, rules v1.3) |
+| `vies_checked_at` | timestamptz | yes |  | When the VIES status was checked |
+| `vies_evidence_ref` | text | yes |  | Reference of the stored check result. The three VIES columns are filled together (I23) |
 | `created_at` | timestamptz | no | `now()` | When the partner was created |
 | `updated_at` | timestamptz | no | `now()` | Last change to this row |
 
@@ -219,6 +227,7 @@ The supplier role of one partner (at most one, I10).
 | `remittance_email` | text | yes |  | Email format (I09) |
 | `approved_at` | timestamptz | yes |  | When approved for payment |
 | `approved_by` | text | yes |  | Who approved it (FK staff). Filled together with `approved_at` |
+| `last_activity_at` | timestamptz | yes |  | Last purchase order or invoice in the ERP (T05: dormant after 12 months) |
 | `block_reason` | text | yes |  | `duplicate`, `credit`, `payment`, `compliance` |
 | `blocked_by` | text | yes |  | Approver of the block (FK staff) |
 | `blocked_at` | timestamptz | yes |  | All three block columns filled or all empty (I11) |
@@ -257,6 +266,9 @@ One period in which a supplier uses one bank account (I13). Only partners with a
 | `verification_method` | text | yes |  | `callback_known_contact`, `bank_letter`, `supplier_portal` |
 | `verified_by` | text | yes |  | Who verified (FK staff). The three verification columns are filled together (I13) |
 | `request_id` | text | yes |  | Request that set it (FK) |
+| `payee_type` | text | no | `'own_account'` | `own_account`, `factoring_company` or `alternative_payee` (rules v1.3) |
+| `assignment_evidence_ref` | text | yes |  | Assignment letter for a factoring company or alternative payee; filled exactly when the payee is not the supplier itself (I22) |
+| `holder_match` | text | yes |  | Holder-name check outcome: `match`, `close_match` or `no_match` (K02) |
 
 ### hub.contact_persons
 
@@ -266,12 +278,14 @@ One contact person of one partner. Personal data, minimised; erasure clears it a
 |---|---|---|---|---|
 | `contact_id` | uuid | no | `gen_random_uuid()` | Primary key |
 | `bp_id` | text | no |  | Partner (FK) |
-| `status` | text | no | `'active'` | `active` or `erased` |
+| `status` | text | no | `'active'` | `active`, `left_company`, `bounced` or `erased` (rules v1.3) |
 | `first_name` | text | yes |  | Filled while active; empty once erased |
 | `last_name` | text | yes |  | Filled while active; empty once erased |
 | `work_email` | text | yes |  | Filled while active (email format); empty once erased |
 | `role_title` | text | yes |  | Role at the company (for example `Head of Insights`); empty once erased |
 | `legal_basis` | text | yes |  | `contract`, `legitimate_interest`, `consent`; empty once erased |
+| `last_verified_at` | timestamptz | yes |  | When the contact was last confirmed as current (K12: bank call-backs need 12 months or less); empty once erased |
+| `last_contact_at` | timestamptz | yes |  | Last contact with the person (T06: prospect contacts anonymised after 3 years); empty once erased |
 | `source_record_id` | uuid | yes |  | Source record it was taken from (FK) |
 | `erased_at` | timestamptz | yes |  | Filled only when erased |
 | `erasure_request_id` | text | yes |  | Erasure request (FK). Filled together with `erased_at` |
@@ -285,7 +299,7 @@ One period in which a partner has a parent (I12): the company hierarchy.
 | `relationship_id` | uuid | no | `gen_random_uuid()` | Primary key |
 | `child_bp_id` | text | no |  | Subsidiary (FK) |
 | `parent_bp_id` | text | no |  | Parent (FK); never the child itself |
-| `relationship_type` | text | no | `'subsidiary_of'` | Type of link |
+| `relationship_type` | text | no | `'subsidiary_of'` | `subsidiary_of` (hierarchy) or `successor_of` (after a merger; the parent column holds the successor). One link of each type at a time (I24) |
 | `valid_period` | tstzrange | no |  | When it applied. One parent at a time per child; no loop; at most five levels |
 | `request_id` | text | yes |  | Request that set it (FK) |
 
@@ -407,7 +421,7 @@ One create, change, block, merge, upload or erasure request.
 | Column | Type | Null | Default | Description |
 |---|---|---|---|---|
 | `request_id` | text | no | 'RQ-' + 6-digit sequence | Primary key, format `RQ-NNNNNN` |
-| `request_type` | text | no |  | One of the 10 types in the rules file (for example `change_bank_details`) |
+| `request_type` | text | no |  | One of the 13 types in the rules file (for example `change_bank_details`, `corporate_event`, `reactivate_supplier`) |
 | `risk` | text | no |  | `low` or `high`, from the fields affected |
 | `target_bp_id` | text | yes |  | Partner concerned (FK); empty for a create until applied |
 | `status` | text | no | `'draft'` | `draft`, `submitted`, `in_review`, `awaiting_approval`, `approved`, `applied`, `closed`, `returned`, `rejected`, `cancelled` |
@@ -477,3 +491,71 @@ One completed erasure of a contact person: proof that it was done, without any o
 | `systems_affected` | text[] | no |  | Source systems that held the person |
 | `completed_by` | text | no |  | Who ran it (FK staff) |
 | `completed_at` | timestamptz | no | `now()` | When |
+
+### source.registry_entries
+
+One company's status in one simulated registry extract (SIRENE-, official-gazette- or Citius-style). Reference data: not linked to partners, compared by country and tax ID (K11). Not visible to reporting (A01).
+
+| Column | Type | Null | Default | Description |
+|---|---|---|---|---|
+| `registry_entry_id` | uuid | no | `gen_random_uuid()` | Primary key |
+| `country` | text | no |  | ISO code |
+| `tax_id` | text | no |  | Tax ID as in the registry |
+| `registry_status` | text | no |  | `active`, `ceased`, `insolvency_proceedings` or `absorbed` |
+| `event_date` | date | yes |  | Date of the event; required unless active |
+| `notice_ref` | text | yes |  | Official notice reference (synthetic) |
+| `successor_tax_id` | text | yes |  | For an absorbed company, the tax ID of the company that absorbed it |
+| `extract_date` | date | no |  | Date of the extract. A company appears once per extract |
+| `loaded_at` | timestamptz | no | `now()` | When it was loaded |
+
+### source.hr_employees
+
+One employee in one synthetic HR extract, used only for the employee–supplier cross-match (K10). Restricted: not visible to reporting (A01).
+
+| Column | Type | Null | Default | Description |
+|---|---|---|---|---|
+| `employee_ref` | text | no |  | Employee reference, format `E-NNNN`; part of the primary key |
+| `extract_date` | date | no |  | Date of the extract; part of the primary key |
+| `iban` | text | yes |  | Salary account |
+| `street_std` | text | yes |  | Home street, standardised |
+| `postal_code` | text | yes |  | Home postal code |
+| `city` | text | yes |  | Home city |
+| `phone_std` | text | yes |  | Phone, international format |
+| `loaded_at` | timestamptz | no | `now()` | When it was loaded |
+
+### governance.rule_exceptions
+
+One approved exception to a rule for one partner, for a period: an IBAN registered in another country (K03) or a cleared employee–supplier match (K10).
+
+| Column | Type | Null | Default | Description |
+|---|---|---|---|---|
+| `exception_id` | uuid | no | `gen_random_uuid()` | Primary key |
+| `rule_id` | text | no |  | Rule the exception applies to, pattern `^[CVUKT][0-9]{2}$` |
+| `bp_id` | text | no |  | Partner (FK) |
+| `reason` | text | no |  | Why the exception is acceptable |
+| `detail` | jsonb | yes |  | Values concerned (not visible to reporting) |
+| `approved_by` | text | no |  | Approver (FK staff); the right role is checked by the engine |
+| `valid_period` | tstzrange | no |  | When it applies. One exception per rule and partner at a time |
+| `request_id` | text | yes |  | Request it came from (FK) |
+
+### governance.suppression_list
+
+One erased or opted-out email, kept only as a hash so that no source can bring the person back (U04, I21). Append-only (I15). Not visible to reporting.
+
+| Column | Type | Null | Default | Description |
+|---|---|---|---|---|
+| `email_sha256` | text | no |  | Primary key: SHA-256 of the lower-cased email |
+| `reason` | text | no |  | `erased` or `opted_out` |
+| `request_id` | text | yes |  | Erasure request (FK); required when the reason is `erased` |
+| `added_at` | timestamptz | no | `now()` | When it was added |
+
+### hub.partner_names (view)
+
+Current legal and trading names of every partner, plus former names taken from field history. Matching compares all of them (rules v1.3).
+
+| Column | Type | Description |
+|---|---|---|
+| `bp_id` | text | Partner |
+| `name` | text | The name |
+| `name_type` | text | `legal` or `trading` |
+| `is_current` | boolean | False for a former name |
