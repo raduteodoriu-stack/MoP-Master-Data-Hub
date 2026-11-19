@@ -195,7 +195,7 @@ The customer role of one partner (at most one, I10). A block sits on top of the 
 | `tier_calculated` | text | no | `'unknown'` | `tier_1`, `tier_2`, `tier_3`, `unknown`, from industry and employee band (rules v1.1 `customer_tier`) |
 | `tier_score` | smallint | yes |  | 0–60; empty when the tier is `unknown` |
 | `tier_reason_codes` | text[] | no | `'{}'` | Reason codes behind the calculated and group tier (for example `TIER_INDUSTRY_CORE`, `TIER_GROUP_ROLLUP`) |
-| `tier_group` | text | no | `'unknown'` | Highest calculated tier in the partner's company group; equal to `tier_calculated` when it has no group. Never lower than the partner's own known tier |
+| `tier_group` | text | no | `'unknown'` | Highest calculated tier in the partner's company group; equal to `tier_calculated` when it has no group. Never lower than the partner's own known tier; unknown while the partner's own tier is unknown (G9) |
 | `tier_override` | text | yes |  | `tier_1`, `tier_2` or `tier_3`, set only by an approved override request |
 | `tier_override_request_id` | text | yes |  | Request that set the override (FK). Filled exactly when `tier_override` is filled |
 | `tier_effective` | text | no | generated | `tier_override` if filled, otherwise `tier_group` |

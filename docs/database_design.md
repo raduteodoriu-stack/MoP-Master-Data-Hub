@@ -3,7 +3,7 @@
 Tables, relationships, history and integrity rules of the MoP Master Data Hub database.
 Every column is described in [data_dictionary.md](data_dictionary.md). The rules this database
 supports are in [data_standards.md](data_standards.md), [quality_rules.md](quality_rules.md)
-and [`rules/MDH-RULES-v1.4.json`](../rules/MDH-RULES-v1.4.json).
+and [`rules/MDH-RULES-v1.5.json`](../rules/MDH-RULES-v1.5.json).
 
 **Status:** implemented and tested. `SQL/001_create_schema.sql` creates the 25 tables and the
 rules below, `SQL/002_working_minutes.sql` adds the working-time function, `SQL/003_rules_v1_2.sql`
@@ -15,7 +15,8 @@ the `successor_of` link, contact status with last verification and last contact,
 supplier last activity, payee type and holder-name outcome, the registry and HR reference
 extracts, rule exceptions, the suppression list and the `hub.partner_names` view. Integrity
 rules I21–I24 below; test file `014_test_rules_v1_3.sql`. The database now has 29 tables and
-one view.
+one view. Migration `SQL/005_rules_v1_5.sql` (rules v1.5, G9) keeps the group tier unknown while a
+partner's own tier is unknown; test file `015_test_rules_v1_5.sql`.
 
 ## Design approach
 
@@ -211,7 +212,7 @@ the DPO.
 | I07 | One active partner per country and tax ID | Partial unique index where status is `active` (rule U01) |
 | I08 | The VAT number is derived, never typed | Generated column: ES and PT prefix + tax ID; FR prefix + key + SIREN |
 | I09 | Formats: country code, tax ID per country (ES, PT, FR), postal code per country, web domain, email, phone, IBAN length per country | CHECK constraints. Check digits are verified by the engine (V01, V09) |
-| I10 | At most one customer role and one supplier role per partner; stages and tiers from the allowed lists; a known tier has its score; the group tier is never lower than the partner's own tier; a tier override always names its request; the effective tier is never typed | Primary key on partner ID in each role table; CHECKs on stage, tiers, score and override pair; generated column |
+| I10 | At most one customer role and one supplier role per partner; stages and tiers from the allowed lists; a known tier has its score; the group tier is never lower than the partner's own tier and is unknown while its own tier is unknown (G9); a tier override always names its request; the effective tier is never typed | Primary key on partner ID in each role table; CHECKs on stage, tiers, score and override pair; generated column |
 | I11 | A block has a reason, an approver and a time, or none of them | CHECK `num_nulls(...) IN (0, 3)` on both role tables (rule K07) |
 | I12 | One parent at a time, never itself, no loop, at most five levels | `EXCLUDE` on overlapping periods; CHECK; trigger with a recursive query (rule K05) |
 | I13 | One current bank account per supplier; verification date, method and verifier filled together | `EXCLUDE` on overlapping periods; CHECK; FK to `supplier_roles` |
@@ -300,6 +301,7 @@ back at the end. The summary shows each file with its number of checks, and a lo
 | `012_test_access.sql` | Reporting role (A01–A03) |
 | `013_test_working_minutes.sql` | Working-time function |
 | `014_test_rules_v1_3.sql` | Rules v1.3 fields, extracts, exceptions, suppression list, names view (I14, I21–I24, A01) |
+| `015_test_rules_v1_5.sql` | Group tier while a partner's own tier is unknown (I10, G9) |
 
 ## Decisions taken in review
 
