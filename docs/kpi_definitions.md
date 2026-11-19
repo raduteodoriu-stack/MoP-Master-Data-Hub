@@ -30,3 +30,20 @@ All KPIs are calculated on a stated as-of date. "Active" means not blocked and n
 | KPI10 | Verified Bank Details Rate | Approved suppliers passing T02 ÷ approved suppliers |
 | KPI12 | Tier Override Rate | Customer roles with a current tier override ÷ customer roles with a known calculated tier. Split by effective tier |
 | KPI11 | Match precision and recall | Test data only, against the MDH-004 answer key (see [quality_rules.md](quality_rules.md), matching) |
+
+## Which requests count (KPI07 to KPI09)
+
+The usual service-desk approach, agreed in the MDH-004 batch R review.
+
+| Request outcome | KPI07 Turnaround | KPI08 SLA attainment | KPI09 First-time-right |
+|---|---|---|---|
+| Approved (closed) | Counted | Counted | Counted; right if never Returned |
+| Rejected | Counted | Counted | Counted as not right: the submission was wrong |
+| Cancelled | Left out | Left out | Left out |
+| Blocked at submission (never submitted) | Left out | Left out | Left out |
+| Open and past its target on the as-of date | Left out | Counted as missed | Left out |
+| Open within its target (including Returned and waiting) | Left out | Left out | Left out |
+
+Only the requester can cancel a request, so a late request cannot be hidden by cancelling it,
+and the number of cancelled requests is shown beside KPI08. A request closed exactly on its
+target counts as met.

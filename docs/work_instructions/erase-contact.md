@@ -5,9 +5,9 @@
 ## Who
 | Raised by | Prepared by | Approved by |
 |---|---|---|
-| DPO | Steward | DPO |
+| Steward, on the DPO's instruction, with the DPO reference | Steward | DPO |
 
-The approver is never the person who raised the request.
+The approver is never the person who raised the request, so the DPO does not raise it: the DPO receives the data subject's request and instructs the steward. The one-calendar-month limit runs from the day the DPO received it.
 
 ## Evidence required
 - dpo reference

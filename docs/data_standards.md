@@ -18,12 +18,13 @@ rules file is what the engine applies and this page must be corrected.
 | D7 | The SLA clock stops while a request is Returned to the requester. Turnaround is reported net (steward time, used for the SLA) and gross (what the requester experienced) |
 | D8 | Only an exact tax ID match (M1) is linked automatically. Every other match is decided by the steward |
 | D9 | Individuals (freelancers) are out of scope as suppliers |
-| D10 | Review periods: customers and approved suppliers every 12 months (T01); supplier bank details every 24 months (T02). Request targets as in section 7 |
+| D10 | Review periods: customers and approved suppliers every 12 months (T01); supplier bank details every 24 months (T02). Request targets per request type are in the rules file (`request_types`) and in [work_instructions/README.md](work_instructions/README.md) |
 | D11 | Customer tier replaces *segment*: calculated from industry and employee band with LeadFlow's fit points, rolled up to the company group, overridable only through a request approved by the Sales Director (rules v1.1) |
 | D12 | M1 links on a shared tax ID only when the names also agree (0.90 or more); otherwise the new suggestion rule M1B sends the pair to the steward, and warning rule K09 flags a source record carrying another partner's tax ID (rules v1.2) |
 | D13 | Rules v1.3: matching fixes G1–G5 (defined similarity, independent bank-risk check, prefix names, invalid tax IDs ignored, no upper limit on M5); former names used in matching; corporate events and supplier reactivation as requests; insolvency and absorbed blocks with a successor link; contact status; holder-name check with match, close match and no match; factoring and alternative payees as documented exceptions; simulated VIES status; employee–supplier cross-match; GDPR retention and suppression list |
 | D14 | Rules v1.4: survivorship clarifications found while writing the MDH-004 survivorship cases. The change time is the one stated by the source (G6); ties are broken in the order ERP, CRM, procurement spreadsheet, support desk (G7); bank details are never filled from a non-winning source (G8) |
 | D15 | Rules v1.5: a partner whose own customer tier is unknown keeps group tier unknown until its industry and employee band are known (G9, from the MDH-004 customer-tier review); the database enforces it (migration 005) |
+| D16 | Requests (MDH-004 batch R review): an erasure request is raised by the steward on the DPO's instruction and approved by the DPO; the approver must hold the required role on the decision date (I25, MDH-007); each data-owner role has a standing deputy, and temporary delegations are dated and recorded as on behalf of; a mass upload is approved or rejected as a whole after a pre-load row report; request KPIs are counted as in [kpi_definitions.md](kpi_definitions.md) |
 
 ## 1. What a business partner record contains
 | Part | Holds | One per partner? |

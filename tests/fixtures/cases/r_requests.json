@@ -1,0 +1,1324 @@
+{
+  "batch": "R",
+  "title": "Requests",
+  "rules_version": "MDH-RULES-v1.5",
+  "status": "reviewed",
+  "as_of": "2026-11-27T18:00",
+  "calendar": "Mon-Fri 09:00-18:00 Europe/Madrid",
+  "staff": {
+    "ST-901": "steward",
+    "ST-902": "Finance Controller",
+    "ST-903": "Sales Director",
+    "ST-904": "SDR",
+    "ST-905": "Account Executive",
+    "ST-906": "DPO",
+    "ST-907": "buyer (Operations)",
+    "ST-908": "Head of Operations",
+    "ST-909": "deputy Finance Controller",
+    "ST-910": "finance clerk (receivables and payables)",
+    "ST-911": "Operations team lead (holiday delegate)"
+  },
+  "cases": [
+    {
+      "id": "R-01",
+      "request_type": "create_customer",
+      "rules": [
+        "create_customer",
+        "C01"
+      ],
+      "purpose": "A prospect becomes a customer",
+      "requested_by": "ST-905",
+      "approver": "ST-902",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-02T10:00",
+          "by": "ST-905"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-02T11:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-03T10:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-03T15:00",
+          "by": "ST-902"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-03T15:05",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-03T15:10",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "Signed contract reference and tax registration attached; customer-stage fields complete (C01). The Account Executive raises, the steward prepares, the Finance Controller approves",
+        "sla": {
+          "from": "2026-11-02T10:00",
+          "to": "2026-11-03T15:10",
+          "open_at_as_of": false,
+          "gross_minutes": 850,
+          "net_minutes": 850,
+          "target_hours": 16,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "met",
+          "KPI09": "first time right"
+        }
+      }
+    },
+    {
+      "id": "R-02",
+      "request_type": "create_supplier",
+      "rules": [
+        "create_supplier"
+      ],
+      "purpose": "A new supplier is requested",
+      "requested_by": "ST-907",
+      "approver": "ST-908",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-04T16:00",
+          "by": "ST-907"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-04T16:30",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-05T10:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-05T13:30",
+          "by": "ST-908"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-05T13:50",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-05T14:00",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "Business reason and internal contact attached; the Head of Operations approves. The supplier is now Requested and cannot be paid yet",
+        "sla": {
+          "from": "2026-11-04T16:00",
+          "to": "2026-11-05T14:00",
+          "open_at_as_of": false,
+          "gross_minutes": 420,
+          "net_minutes": 420,
+          "target_hours": 8,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "met",
+          "KPI09": "first time right"
+        }
+      }
+    },
+    {
+      "id": "R-03",
+      "request_type": "approve_supplier",
+      "rules": [
+        "approve_supplier",
+        "T02",
+        "D6"
+      ],
+      "purpose": "Approval for payment across a weekend",
+      "requested_by": "ST-907",
+      "approver": "ST-902",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-05T14:30",
+          "by": "ST-907"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-05T15:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-06T16:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-09T10:30",
+          "by": "ST-902"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-09T10:50",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-09T11:00",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "Tax registration, bank certificate and verification record attached. Thursday 14:30 to Monday 11:00 is 92h30 on the calendar but 14h30 of working time: weekends do not count",
+        "sla": {
+          "from": "2026-11-05T14:30",
+          "to": "2026-11-09T11:00",
+          "open_at_as_of": false,
+          "gross_minutes": 870,
+          "net_minutes": 870,
+          "target_hours": 16,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "met",
+          "KPI09": "first time right"
+        }
+      }
+    },
+    {
+      "id": "R-04",
+      "request_type": "change_low_risk",
+      "rules": [
+        "change_low_risk",
+        "D6"
+      ],
+      "purpose": "Submitted on a Saturday: the clock starts on Monday at 09:00",
+      "requested_by": "ST-904",
+      "approver": "ST-901",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-07T10:30",
+          "by": "ST-904"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-09T09:20",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-09T10:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-09T10:10",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-09T10:15",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "Web domain change; the steward approves alone (low risk), and is not the requester. No Awaiting approval step for steward-approved types",
+        "sla": {
+          "from": "2026-11-07T10:30",
+          "to": "2026-11-09T10:15",
+          "open_at_as_of": false,
+          "gross_minutes": 75,
+          "net_minutes": 75,
+          "target_hours": 8,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "met",
+          "KPI09": "first time right"
+        }
+      }
+    },
+    {
+      "id": "R-05",
+      "request_type": "override_customer_tier",
+      "rules": [
+        "override_customer_tier",
+        "customer tier",
+        "KPI12"
+      ],
+      "purpose": "A tier override approved by the Sales Director",
+      "requested_by": "ST-905",
+      "approver": "ST-903",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-10T09:00",
+          "by": "ST-905"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-10T09:40",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-10T11:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-10T15:30",
+          "by": "ST-903"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-10T15:50",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-10T16:00",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "Calculated tier 2, override tier 1 with a written reason. Effective tier becomes 1, the calculated tier is kept beside it, and the role now counts in KPI12 (Tier Override Rate)",
+        "sla": {
+          "from": "2026-11-10T09:00",
+          "to": "2026-11-10T16:00",
+          "open_at_as_of": false,
+          "gross_minutes": 420,
+          "net_minutes": 420,
+          "target_hours": 8,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "met",
+          "KPI09": "first time right"
+        }
+      }
+    },
+    {
+      "id": "R-06",
+      "request_type": "change_high_risk",
+      "rules": [
+        "change_high_risk",
+        "SLA boundary"
+      ],
+      "purpose": "Closed exactly on the target",
+      "requested_by": "ST-910",
+      "approver": "ST-902",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-10T10:00",
+          "by": "ST-910"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-10T11:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-11T09:30",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-11T16:30",
+          "by": "ST-902"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-11T16:50",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-11T17:00",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "Billing address change with a supporting document. Net time is exactly 16h: a request closed on the target counts as met (≤ target)",
+        "sla": {
+          "from": "2026-11-10T10:00",
+          "to": "2026-11-11T17:00",
+          "open_at_as_of": false,
+          "gross_minutes": 960,
+          "net_minutes": 960,
+          "target_hours": 16,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "met",
+          "KPI09": "first time right"
+        }
+      }
+    },
+    {
+      "id": "R-07",
+      "request_type": "change_bank_details",
+      "rules": [
+        "change_bank_details",
+        "K12",
+        "T02",
+        "separation of duties"
+      ],
+      "purpose": "A bank change verified through the contact on file",
+      "requested_by": "ST-910",
+      "approver": "ST-902",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-11T09:00",
+          "by": "ST-910"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-11T09:30",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-12T10:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-12T11:40",
+          "by": "ST-902"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-12T11:55",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-12T12:00",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "The steward calls the supplier's finance contact (active, verified in the last 12 months) on the number held in the hub, not the one in the change letter (K12). Approved by the Finance Controller; the verification date is set, so T02 passes. The clerk who raised it and the steward who prepared it cannot approve it",
+        "sla": {
+          "from": "2026-11-11T09:00",
+          "to": "2026-11-12T12:00",
+          "open_at_as_of": false,
+          "gross_minutes": 720,
+          "net_minutes": 720,
+          "target_hours": 16,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "met",
+          "KPI09": "first time right"
+        }
+      }
+    },
+    {
+      "id": "R-08",
+      "request_type": "corporate_event",
+      "rules": [
+        "corporate_event",
+        "former names",
+        "M1"
+      ],
+      "purpose": "A rename backed by a registry extract",
+      "requested_by": "ST-910",
+      "approver": "ST-902",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-12T10:00",
+          "by": "ST-910"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-12T11:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-13T09:30",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-13T15:30",
+          "by": "ST-902"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-13T15:50",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-13T16:00",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "'Ensayo Logística S.L.' becomes 'Ensayo Supply Chain S.L.'. The old name is kept as a former name, so a support-desk record still using it keeps matching (as in batch C)",
+        "sla": {
+          "from": "2026-11-12T10:00",
+          "to": "2026-11-13T16:00",
+          "open_at_as_of": false,
+          "gross_minutes": 900,
+          "net_minutes": 900,
+          "target_hours": 16,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "met",
+          "KPI09": "first time right"
+        }
+      }
+    },
+    {
+      "id": "R-09",
+      "request_type": "reactivate_supplier",
+      "rules": [
+        "reactivate_supplier",
+        "T05",
+        "D7",
+        "KPI09"
+      ],
+      "purpose": "Returned once: net time meets the SLA, but it is not first time right",
+      "requested_by": "ST-907",
+      "approver": "ST-902",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-16T09:00",
+          "by": "ST-907"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-16T09:30",
+          "by": "ST-901"
+        },
+        {
+          "status": "returned",
+          "at": "2026-11-16T12:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "submitted",
+          "at": "2026-11-18T11:00",
+          "by": "ST-907"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-18T11:15",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-19T10:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-19T13:30",
+          "by": "ST-902"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-19T13:50",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-19T14:00",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "Returned because the bank holder name was only a close match and needed an explanation from the buyer. The clock pauses for the 17 working hours the request sat with the requester",
+        "sla": {
+          "from": "2026-11-16T09:00",
+          "to": "2026-11-19T14:00",
+          "open_at_as_of": false,
+          "gross_minutes": 1920,
+          "net_minutes": 900,
+          "target_hours": 16,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted (net and gross)",
+          "KPI08": "met",
+          "KPI09": "not first time right"
+        }
+      }
+    },
+    {
+      "id": "R-10",
+      "request_type": "block_unblock",
+      "rules": [
+        "block_unblock",
+        "K07"
+      ],
+      "purpose": "A credit block across a weekend, on the shortest target",
+      "requested_by": "ST-910",
+      "approver": "ST-902",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-13T17:00",
+          "by": "ST-910"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-13T17:20",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-16T09:15",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-16T11:00",
+          "by": "ST-902"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-16T11:20",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-16T11:30",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "Block reason credit, approved by the Finance Controller; the block carries the request (K07). Friday 17:00 to Monday 11:30 is 3h30 of working time, within 4h",
+        "sla": {
+          "from": "2026-11-13T17:00",
+          "to": "2026-11-16T11:30",
+          "open_at_as_of": false,
+          "gross_minutes": 210,
+          "net_minutes": 210,
+          "target_hours": 4,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "met",
+          "KPI09": "first time right"
+        }
+      }
+    },
+    {
+      "id": "R-11",
+      "request_type": "merge_hierarchy",
+      "rules": [
+        "merge_hierarchy",
+        "M4",
+        "decision rights"
+      ],
+      "purpose": "A probable merge of two records with different account owners",
+      "requested_by": "ST-901",
+      "approver": "ST-903",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-16T14:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-16T14:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-17T09:30",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-18T09:40",
+          "by": "ST-903"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-18T09:55",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-18T10:00",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "The steward raises it from an M4 suggestion. The steward could approve a probable merge alone, but the two records have different account owners, so the Sales Director must approve. The steward is the requester here, which is allowed: only approving one's own request is not",
+        "sla": {
+          "from": "2026-11-16T14:00",
+          "to": "2026-11-18T10:00",
+          "open_at_as_of": false,
+          "gross_minutes": 840,
+          "net_minutes": 840,
+          "target_hours": 16,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "met",
+          "KPI09": "first time right"
+        }
+      }
+    },
+    {
+      "id": "R-12",
+      "request_type": "mass_upload",
+      "rules": [
+        "mass_upload",
+        "submission blocked",
+        "decision rights"
+      ],
+      "purpose": "A mass upload: pre-load checks, then the highest-risk approver",
+      "requested_by": "ST-905",
+      "approver": "ST-902",
+      "timeline": [
+        {
+          "status": "draft",
+          "at": "2026-11-17T09:00",
+          "by": "ST-905"
+        },
+        {
+          "status": "submitted",
+          "at": "2026-11-18T09:00",
+          "by": "ST-905"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-18T09:30",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-18T15:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-19T16:00",
+          "by": "ST-902"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-19T16:40",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-19T17:00",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "First file (43 rows: 40 industry changes, 3 payment-term changes): rows 12 and 31 carry an industry that is not in the controlled list, so the submission is blocked with a row report and stays a draft (no SLA clock). The corrected file is submitted the next day. Because 3 rows are high-risk, the Finance Controller approves the whole file; the steward's approval alone is not enough",
+        "sla": {
+          "from": "2026-11-18T09:00",
+          "to": "2026-11-19T17:00",
+          "open_at_as_of": false,
+          "gross_minutes": 1020,
+          "net_minutes": 1020,
+          "target_hours": 24,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "met",
+          "KPI09": "first time right (a blocked draft is not a return)"
+        }
+      }
+    },
+    {
+      "id": "R-13",
+      "request_type": "erase_contact",
+      "rules": [
+        "erase_contact",
+        "four-eyes",
+        "calendar limit"
+      ],
+      "purpose": "An erasure request within 40 working hours and one calendar month",
+      "requested_by": "ST-901",
+      "approver": "ST-906",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-02T12:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-02T12:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-05T10:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-06T10:30",
+          "by": "ST-906"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-06T11:50",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-06T12:00",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "The data subject's request reached the DPO on Fri 30 Oct; the calendar limit runs from that day (until 30 Nov), the working-hour target from the submission. Raised by the steward with the DPO reference, approved by the DPO (the DPO cannot both raise and approve: decided in review)",
+        "sla": {
+          "from": "2026-11-02T12:00",
+          "to": "2026-11-06T12:00",
+          "open_at_as_of": false,
+          "gross_minutes": 2160,
+          "net_minutes": 2160,
+          "target_hours": 40,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "met",
+          "KPI09": "first time right"
+        }
+      }
+    },
+    {
+      "id": "R-14",
+      "request_type": "change_high_risk",
+      "rules": [
+        "change_high_risk",
+        "KPI08"
+      ],
+      "purpose": "A late request: waiting for the approver counts",
+      "requested_by": "ST-905",
+      "approver": "ST-902",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-16T10:00",
+          "by": "ST-905"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-16T11:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-16T15:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-19T10:30",
+          "by": "ST-902"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-19T10:50",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-19T11:00",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "Payment-terms change. It waited three days for the Finance Controller. The clock only pauses while Returned, so Awaiting approval counts: 28h net against 16h, missed",
+        "sla": {
+          "from": "2026-11-16T10:00",
+          "to": "2026-11-19T11:00",
+          "open_at_as_of": false,
+          "gross_minutes": 1680,
+          "net_minutes": 1680,
+          "target_hours": 16,
+          "met": false
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "missed",
+          "KPI09": "first time right"
+        }
+      }
+    },
+    {
+      "id": "R-15",
+      "request_type": "change_high_risk",
+      "rules": [
+        "four-eyes",
+        "I18"
+      ],
+      "purpose": "The Finance Controller raises a high-risk change",
+      "requested_by": "ST-902",
+      "approver": "ST-909",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-17T09:00",
+          "by": "ST-902"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-17T09:30",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-17T12:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-17T16:00",
+          "by": "ST-909"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-17T16:20",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-17T16:30",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "Fail variant: the Finance Controller (ST-902) tries to approve their own request; the database refuses it (I18). Pass variant: the deputy Finance Controller (ST-909, who holds the finance_controller role) approves",
+        "sla": {
+          "from": "2026-11-17T09:00",
+          "to": "2026-11-17T16:30",
+          "open_at_as_of": false,
+          "gross_minutes": 450,
+          "net_minutes": 450,
+          "target_hours": 16,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "met",
+          "KPI09": "first time right"
+        }
+      }
+    },
+    {
+      "id": "R-16",
+      "request_type": "change_high_risk",
+      "rules": [
+        "approver role",
+        "staff_roles"
+      ],
+      "purpose": "Approval by someone without the required role",
+      "requested_by": "ST-910",
+      "approver": "ST-902",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-18T09:00",
+          "by": "ST-910"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-18T09:30",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-18T11:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-18T14:00",
+          "by": "ST-902"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-18T14:20",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-18T14:30",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "Fail variants, all refused: the steward approves a high-risk change; the Sales Director approves it; a former Finance Controller whose role ended on 13 Nov approves it on 18 Nov. The approval must come from the role the request type requires, held on the decision date (I25, enforced by the database from MDH-007). Pass variant: the Finance Controller approves",
+        "sla": {
+          "from": "2026-11-18T09:00",
+          "to": "2026-11-18T14:30",
+          "open_at_as_of": false,
+          "gross_minutes": 330,
+          "net_minutes": 330,
+          "target_hours": 16,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "met",
+          "KPI09": "first time right"
+        }
+      }
+    },
+    {
+      "id": "R-17",
+      "request_type": "approve_supplier",
+      "rules": [
+        "submission blocked",
+        "evidence"
+      ],
+      "purpose": "Submission blocked: required evidence missing",
+      "requested_by": "ST-907",
+      "approver": null,
+      "timeline": [
+        {
+          "status": "draft",
+          "at": "2026-11-19T10:00",
+          "by": "ST-907"
+        }
+      ],
+      "expected": {
+        "outcome": "blocked",
+        "detail": "No verification record attached. The request cannot be submitted, so it stays a draft: no SLA clock, not in any request KPI",
+        "sla": null,
+        "kpi": {
+          "KPI07": "excluded",
+          "KPI08": "excluded",
+          "KPI09": "excluded"
+        }
+      }
+    },
+    {
+      "id": "R-18",
+      "request_type": "create_customer",
+      "rules": [
+        "submission blocked",
+        "V01"
+      ],
+      "purpose": "Submission blocked: an error rule fails",
+      "requested_by": "ST-905",
+      "approver": null,
+      "timeline": [
+        {
+          "status": "draft",
+          "at": "2026-11-19T11:00",
+          "by": "ST-905"
+        }
+      ],
+      "expected": {
+        "outcome": "blocked",
+        "detail": "The tax ID has a wrong check digit (V01, error). Same as R-17: stays a draft, outside the KPIs",
+        "sla": null,
+        "kpi": {
+          "KPI07": "excluded",
+          "KPI08": "excluded",
+          "KPI09": "excluded"
+        }
+      }
+    },
+    {
+      "id": "R-19",
+      "request_type": "change_bank_details",
+      "rules": [
+        "K12",
+        "rejected",
+        "KPI09"
+      ],
+      "purpose": "A bank change verified only by replying to the email that asked for it",
+      "requested_by": "ST-910",
+      "approver": "ST-902",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-19T09:00",
+          "by": "ST-910"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-19T09:20",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-19T12:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "rejected",
+          "at": "2026-11-19T16:00",
+          "by": "ST-902"
+        }
+      ],
+      "expected": {
+        "outcome": "rejected",
+        "detail": "The only verification is a reply to the sender of the change email (K12, error). The Finance Controller rejects it. A rejected request ends the clock and counts in KPI08; in KPI09 it is in the denominator but not the numerator",
+        "sla": {
+          "from": "2026-11-19T09:00",
+          "to": "2026-11-19T16:00",
+          "open_at_as_of": false,
+          "gross_minutes": 420,
+          "net_minutes": 420,
+          "target_hours": 16,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "met",
+          "KPI09": "not first time right"
+        }
+      }
+    },
+    {
+      "id": "R-20",
+      "request_type": "change_low_risk",
+      "rules": [
+        "cancelled"
+      ],
+      "purpose": "Cancelled by the requester",
+      "requested_by": "ST-904",
+      "approver": null,
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-20T10:00",
+          "by": "ST-904"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-20T10:30",
+          "by": "ST-901"
+        },
+        {
+          "status": "cancelled",
+          "at": "2026-11-20T15:00",
+          "by": "ST-904"
+        }
+      ],
+      "expected": {
+        "outcome": "cancelled",
+        "detail": "The SDR withdraws it: the phone number was already right. Excluded from all three request KPIs; it appears in the count of cancelled requests shown beside KPI08. Only the requester can cancel",
+        "sla": {
+          "from": "2026-11-20T10:00",
+          "to": "2026-11-20T15:00",
+          "open_at_as_of": false,
+          "gross_minutes": 300,
+          "net_minutes": 300,
+          "target_hours": 8,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "excluded",
+          "KPI08": "excluded",
+          "KPI09": "excluded"
+        }
+      }
+    },
+    {
+      "id": "R-21",
+      "request_type": "change_low_risk",
+      "rules": [
+        "KPI08",
+        "as of"
+      ],
+      "purpose": "Still open past its target on the as-of date",
+      "requested_by": "ST-904",
+      "approver": null,
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-24T09:00",
+          "by": "ST-904"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-25T10:00",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "open",
+        "detail": "36h net at Fri 27 Nov 18:00 against 8h. Counted as missed in KPI08 even though it is not closed; not in KPI07 (no close yet) or KPI09",
+        "sla": {
+          "from": "2026-11-24T09:00",
+          "to": "2026-11-27T18:00",
+          "open_at_as_of": true,
+          "gross_minutes": 2160,
+          "net_minutes": 2160,
+          "target_hours": 8,
+          "met": false
+        },
+        "kpi": {
+          "KPI07": "excluded (open)",
+          "KPI08": "missed (open past target)",
+          "KPI09": "excluded (open)"
+        }
+      }
+    },
+    {
+      "id": "R-22",
+      "request_type": "create_supplier",
+      "rules": [
+        "D7",
+        "as of"
+      ],
+      "purpose": "Open and waiting for the requester on the as-of date",
+      "requested_by": "ST-907",
+      "approver": null,
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-23T09:00",
+          "by": "ST-907"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-23T09:30",
+          "by": "ST-901"
+        },
+        {
+          "status": "returned",
+          "at": "2026-11-23T11:00",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "open",
+        "detail": "Returned on Monday and not answered. Net time stays at 2h while it waits, so it is not past its 8h target and not a miss; gross time keeps growing (45h)",
+        "sla": {
+          "from": "2026-11-23T09:00",
+          "to": "2026-11-27T18:00",
+          "open_at_as_of": true,
+          "gross_minutes": 2700,
+          "net_minutes": 120,
+          "target_hours": 8,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "excluded (open)",
+          "KPI08": "not counted (not past target)",
+          "KPI09": "excluded (open)"
+        }
+      }
+    },
+    {
+      "id": "R-23",
+      "request_type": "create_supplier",
+      "rules": [
+        "delegation",
+        "I25"
+      ],
+      "purpose": "Approved by a holiday delegate",
+      "requested_by": "ST-907",
+      "approver": "ST-911",
+      "timeline": [
+        {
+          "status": "submitted",
+          "at": "2026-11-26T09:00",
+          "by": "ST-907"
+        },
+        {
+          "status": "in_review",
+          "at": "2026-11-26T09:20",
+          "by": "ST-901"
+        },
+        {
+          "status": "awaiting_approval",
+          "at": "2026-11-26T11:00",
+          "by": "ST-901"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-26T14:00",
+          "by": "ST-911"
+        },
+        {
+          "status": "applied",
+          "at": "2026-11-26T14:20",
+          "by": "ST-901"
+        },
+        {
+          "status": "closed",
+          "at": "2026-11-26T14:30",
+          "by": "ST-901"
+        }
+      ],
+      "expected": {
+        "outcome": "approved",
+        "detail": "The Head of Operations (ST-908) is on holiday 23-27 Nov and delegated the role to ST-911 for exactly those dates. ST-911 approves, recorded as on behalf of ST-908. Fail variant: the delegation ran 23-25 Nov only, so an approval on 26 Nov is refused (I25)",
+        "sla": {
+          "from": "2026-11-26T09:00",
+          "to": "2026-11-26T14:30",
+          "open_at_as_of": false,
+          "gross_minutes": 330,
+          "net_minutes": 330,
+          "target_hours": 8,
+          "met": true
+        },
+        "kpi": {
+          "KPI07": "counted",
+          "KPI08": "met",
+          "KPI09": "first time right"
+        }
+      }
+    }
+  ]
+}

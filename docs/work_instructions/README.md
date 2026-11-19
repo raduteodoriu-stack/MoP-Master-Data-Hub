@@ -2,7 +2,7 @@
 
 How the steward handles each request type. The decision rights are in
 [governance.md](../governance.md); the evidence and targets come from
-[`rules/MDH-RULES-v1.1.json`](../../rules/MDH-RULES-v1.1.json) (`request_types`, `requests`).
+the latest rules file in [`rules/`](../../rules/) (`request_types`, `requests`).
 
 > Skeleton pages (MDH-002). The step-by-step procedures are written in MDH-007, when the request workflow is built.
 

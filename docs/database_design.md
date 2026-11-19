@@ -252,8 +252,10 @@ reconciliation checks:
 - Check digits of tax IDs and IBANs (V01, V09); free email domains and placeholders (V05, V11).
 - Mandatory fields per lifecycle stage (C01): what is mandatory changes with the stage.
 - Matching, survivorship and which values go on the golden record.
-- Valid request status transitions, evidence per request type, and that the approver held the
-  right role at the time of the decision.
+- Valid request status transitions and evidence per request type.
+- That the approver held the role the request type requires on the decision date (I25): moves
+  into the database in MDH-007, with a `delegated_by` column on `config.staff_roles` for
+  temporary delegations.
 - That an absorbed partner's links all moved, and that merges and undos balance.
 
 ## Known limits

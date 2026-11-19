@@ -65,8 +65,21 @@ Above every row: nobody approves a request they raised.
 | Change the company hierarchy | Sales or steward | Steward | Sales Director |
 | Block or deactivate | Finance, Sales or Operations | Steward | Finance Controller for credit, payment or compliance; Sales Director or Head of Operations for inactive |
 | Mass upload | Any requester | Steward, after pre-load checks | The approver of the highest-risk change in the file |
-| Erase a contact person | DPO | Steward | DPO |
+| Erase a contact person | Steward, on the DPO's instruction, with the DPO reference | Steward | DPO |
 | Change a standard or rule | Steward or data owner | Steward | The owning data owner. Released as a new rules version |
+
+## Approvers, deputies and delegation
+
+The approver must hold the role the request type requires on the day of the decision (I25,
+enforced by the database from MDH-007). Roles are dated rows in `config.staff_roles`, which
+gives two ways to stand in:
+
+| Way | When | How it is recorded |
+|---|---|---|
+| Standing deputy | Each data-owner role (Finance Controller, Sales Director, Head of Operations, DPO) has one. The deputy approves when the main holder raised the request or cannot act | A second holder of the same role, no end date |
+| Temporary delegation | Holidays or absence | A role row with start and end dates and the person who delegated it; the approval is shown as on behalf of that person |
+
+A deputy or delegate never approves a request they raised (I18 applies to everyone).
 
 ## Separation of duties
 
