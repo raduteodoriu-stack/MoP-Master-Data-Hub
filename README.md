@@ -29,7 +29,7 @@ Leak Radar (pipeline risk).
 |---|---|
 | MDH-001 Scope and governance | Documents in this repo |
 | MDH-002 Data standards and quality rules v1 | Rules file and documents in this repo; customer tier added in rules v1.1; same-tax-ID review (M1B) and rule K09 in v1.2; matching fixes and lifecycle, fraud and privacy controls in v1.3 |
-| MDH-003 Data foundation (PostgreSQL) | 25 tables, 20 integrity rules, 13 test files |
+| MDH-003 Data foundation (PostgreSQL) | 29 tables, 24 integrity rules, 14 test files (migration 004 for rules v1.3) |
 | MDH-004 to MDH-010 | Backlog |
 
 ## Documentation
